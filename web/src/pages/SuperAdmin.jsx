@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User, Lock, Hash } from 'lucide-react';
+import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User, Lock, Hash, Eye, EyeOff } from 'lucide-react';
 
 function SuperAdmin() {
   const [token, setToken] = useState('AdminSecret2024');
@@ -13,6 +13,7 @@ function SuperAdmin() {
   const [newDevice, setNewDevice] = useState({ sn: '', customer_id: '' });
   const [editingDevice, setEditingDevice] = useState(null);
   const [msg, setMsg] = useState({ text: '', type: '' });
+  const [showPwd, setShowPwd] = useState(false);
 
   const fetchAll = async () => {
     try {
@@ -55,13 +56,20 @@ function SuperAdmin() {
   const updateCustomer = async (e) => {
     e.preventDefault();
     try {
+      // التأكد من أن الحقول غير فارغة قبل الإرسال
+      const payload = {
+        ...editingCustomer,
+        admin_pin: editingCustomer.admin_pin || '1000',
+        admin_password: editingCustomer.admin_password || 'admin'
+      };
+      
       const res = await fetch(`/api/superadmin/customers/${editingCustomer.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'X-Super-Admin-Token': token },
-        body: JSON.stringify(editingCustomer)
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
-        setMsg({ text: 'تم تحديث بيانات الشركة', type: 'success' });
+        setMsg({ text: 'تم تحديث بيانات الشركة بنجاح', type: 'success' });
         setEditingCustomer(null);
         fetchAll();
       }
@@ -114,7 +122,7 @@ function SuperAdmin() {
             <input 
               type="password" 
               className="full-width" 
-              style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid #334155', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+              style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid #334155', background: 'rgba(0,0,0,0.2)', color: 'white', textAlign: 'center' }}
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder="Enter Token..."
@@ -154,7 +162,7 @@ function SuperAdmin() {
               <input 
                 type="text" 
                 className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                 value={editingCustomer ? editingCustomer.name : newCustomer.name}
                 onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, name: e.target.value}) : setNewCustomer({...newCustomer, name: e.target.value})}
                 required
@@ -166,7 +174,7 @@ function SuperAdmin() {
                 <input 
                   type="text" 
                   className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                   value={editingCustomer ? editingCustomer.admin_name : newCustomer.admin_name}
                   onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_name: e.target.value}) : setNewCustomer({...newCustomer, admin_name: e.target.value})}
                   required
@@ -177,7 +185,7 @@ function SuperAdmin() {
                 <input 
                   type="text" 
                   className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                   value={editingCustomer ? editingCustomer.phone : newCustomer.phone}
                   onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, phone: e.target.value}) : setNewCustomer({...newCustomer, phone: e.target.value})}
                   required
@@ -191,22 +199,27 @@ function SuperAdmin() {
                 <input 
                   type="text" 
                   className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
-                  value={editingCustomer ? editingCustomer.admin_pin : newCustomer.admin_pin}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                  value={editingCustomer ? (editingCustomer.admin_pin || '') : newCustomer.admin_pin}
                   onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_pin: e.target.value}) : setNewCustomer({...newCustomer, admin_pin: e.target.value})}
                   required
                 />
               </div>
               <div className="form-group">
                 <label>كلمة المرور</label>
-                <input 
-                  type="text" 
-                  className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
-                  value={editingCustomer ? editingCustomer.admin_password : newCustomer.admin_password}
-                  onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_password: e.target.value}) : setNewCustomer({...newCustomer, admin_password: e.target.value})}
-                  required
-                />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showPwd ? "text" : "password"}
+                    className="full-width" 
+                    style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                    value={editingCustomer ? (editingCustomer.admin_password || '') : newCustomer.admin_password}
+                    onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_password: e.target.value}) : setNewCustomer({...newCustomer, admin_password: e.target.value})}
+                    required
+                  />
+                  <button type="button" className="btn-icon" style={{ position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)' }} onClick={() => setShowPwd(!showPwd)}>
+                    {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -215,7 +228,7 @@ function SuperAdmin() {
               <input 
                 type="email" 
                 className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                 value={editingCustomer ? (editingCustomer.admin_email || '') : newCustomer.email}
                 onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_email: e.target.value}) : setNewCustomer({...newCustomer, email: e.target.value})}
               />
@@ -238,7 +251,7 @@ function SuperAdmin() {
               <input 
                 type="text" 
                 className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                 placeholder="رقم السيريال (SN)"
                 value={editingDevice ? editingDevice.sn : newDevice.sn}
                 onChange={(e) => editingDevice ? null : setNewDevice({...newDevice, sn: e.target.value})}
@@ -252,7 +265,7 @@ function SuperAdmin() {
                 <input 
                   type="date" 
                   className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                   value={editingDevice.subscription_end}
                   onChange={(e) => setEditingDevice({...editingDevice, subscription_end: e.target.value})}
                   required
@@ -262,7 +275,7 @@ function SuperAdmin() {
               <div className="form-group">
                 <select 
                   className="full-width" 
-                  style={{ background: '#1e293b', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  style={{ background: '#1e293b', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
                   value={newDevice.customer_id}
                   onChange={(e) => setNewDevice({...newDevice, customer_id: e.target.value})}
                   required

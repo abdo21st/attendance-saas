@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Lock, User } from 'lucide-react';
+import { Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function Login({ setAuth }) {
   const [companyId, setCompanyId] = useState('1');
   const [pin, setPin] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -76,11 +77,19 @@ function Login({ setAuth }) {
             <div className="input-wrapper">
               <Lock className="input-icon" size={20} />
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"} 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="أدخل كلمة المرور"
               />
+              <button 
+                type="button" 
+                className="btn-icon" 
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', padding: '0.2rem' }}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
           

@@ -56,9 +56,9 @@ def update_customer(cid):
     name = data.get('name')
     admin_name = data.get('admin_name')
     phone = data.get('phone')
-    email = data.get('admin_email') # Frontend sends admin_email in editing object
-    admin_pin = data.get('admin_pin')
-    admin_password = data.get('admin_password')
+    email = data.get('admin_email')
+    admin_pin = data.get('admin_pin') or '1000'
+    admin_password = data.get('admin_password') or 'admin'
 
     with closing(get_db()) as conn:
         with conn.cursor() as cursor:
@@ -67,13 +67,12 @@ def update_customer(cid):
                 WHERE id=%s
             ''', (name, admin_name, phone, email, admin_pin, admin_password, cid))
             
-            # تحديث مدير النظام في جدول المستخدمين
-            if admin_pin:
-                cursor.execute('''
-                    INSERT INTO Users (customer_id, pin, name, role, password)
-                    VALUES (%s, %s, %s, 14, %s)
-                    ON CONFLICT (customer_id, pin) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name
-                ''', (cid, admin_pin, admin_name or name, admin_password or 'admin'))
+            # تحديث أو إنشاء مدير النظام في جدول المستخدمين
+            cursor.execute('''
+                INSERT INTO Users (customer_id, pin, name, role, password)
+                VALUES (%s, %s, %s, 14, %s)
+                ON CONFLICT (customer_id, pin) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name
+            ''', (cid, admin_pin, admin_name or name, admin_password))
                 
         conn.commit()
     return jsonify({'success': True})
