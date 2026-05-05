@@ -10,7 +10,7 @@ from contextlib import closing
 # ===================================================
 DB_HOST = os.environ.get('DB_HOST', '102.203.201.52')
 DB_PORT = os.environ.get('DB_PORT', '5432')
-DB_NAME = os.environ.get('DB_NAME', 'n8n')
+DB_NAME = os.environ.get('DB_NAME', 'attendance_db')
 DB_USER = os.environ.get('DB_USER', 'n8n')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'n8nDbPass2024')
 
