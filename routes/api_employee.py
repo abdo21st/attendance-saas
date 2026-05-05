@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session
-from utils.database import get_user_by_pin, get_setting, get_user_logs, get_extra_tasks_for_user, calculate_premium_bonus
+from utils.database import get_user_by_pin, get_setting, get_user_logs, get_extra_tasks_for_user
 from datetime import datetime, timedelta
 
 api_employee_bp = Blueprint('api_employee', __name__)
@@ -89,7 +89,7 @@ def api_employee_dashboard():
     rate = float(session.get('emp_hourly_rate', 0.0))
     base_salary = round(total_hours * rate, 2)
     
-    premium_bonus = calculate_premium_bonus(pin, shifts, rate)
+    premium_bonus = 0.0
     extra_tasks = get_extra_tasks_for_user(customer_id, pin, start_date, end_date)
     total_extras = sum(float(t['task_value']) for t in extra_tasks) + premium_bonus
     total_salary = round(base_salary + total_extras, 2)
