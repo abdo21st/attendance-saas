@@ -44,6 +44,8 @@ def init_db():
                     CREATE TABLE IF NOT EXISTS Customers (
                         id SERIAL PRIMARY KEY,
                         name VARCHAR(255) NOT NULL,
+                        admin_name VARCHAR(255),
+                        phone VARCHAR(50),
                         admin_email VARCHAR(255),
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
