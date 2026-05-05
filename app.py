@@ -25,6 +25,11 @@ else:
 
 CORS(app, supports_credentials=True)
 
+try:
+    init_db()
+except Exception as e:
+    print(f"Error initializing DB on startup: {e}", flush=True)
+
 from routes.api_auth import api_auth_bp
 from routes.api_device import api_device_bp
 from routes.api_logs import api_logs_bp
