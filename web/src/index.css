@@ -44,7 +44,7 @@ body {
 h1, h2, h3, h4, h5, h6 { font-weight: 700; }
 a { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; border: none; outline: none; }
-input { font-family: inherit; outline: none; }
+input { font-family: inherit; outline: none; text-align: center; }
 
 .text-center { text-align: center; }
 .text-muted { color: var(--text-secondary); }
@@ -130,6 +130,7 @@ input { font-family: inherit; outline: none; }
   border-radius: var(--radius-md);
   color: white;
   font-size: 1rem;
+  text-align: center;
   transition: all 0.3s ease;
 }
 
