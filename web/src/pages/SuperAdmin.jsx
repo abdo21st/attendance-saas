@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User } from 'lucide-react';
+import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User, Lock, Hash } from 'lucide-react';
 
 function SuperAdmin() {
   const [token, setToken] = useState('AdminSecret2024');
@@ -8,7 +8,7 @@ function SuperAdmin() {
   const [devices, setDevices] = useState([]);
   
   // Forms
-  const [newCustomer, setNewCustomer] = useState({ name: '', admin_name: '', phone: '', email: '' });
+  const [newCustomer, setNewCustomer] = useState({ name: '', admin_name: '', phone: '', email: '', admin_pin: '1000', admin_password: 'admin' });
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [newDevice, setNewDevice] = useState({ sn: '', customer_id: '' });
   const [editingDevice, setEditingDevice] = useState(null);
@@ -46,7 +46,7 @@ function SuperAdmin() {
       });
       if (res.ok) {
         setMsg({ text: 'تم إضافة الشركة بنجاح', type: 'success' });
-        setNewCustomer({ name: '', admin_name: '', phone: '', email: '' });
+        setNewCustomer({ name: '', admin_name: '', phone: '', email: '', admin_pin: '1000', admin_password: 'admin' });
         fetchAll();
       }
     } catch (err) { setMsg({ text: 'فشل الإضافة', type: 'error' }); }
@@ -141,7 +141,7 @@ function SuperAdmin() {
 
       {msg.text && <div className={`alert-${msg.type}`}>{msg.text}</div>}
 
-      <div className="stats-grid">
+      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}>
         {/* إضافة شركة */}
         <div className="stat-card" style={{ display: 'block', height: 'fit-content' }}>
           <div className="flex-between mb-4">
@@ -150,44 +150,72 @@ function SuperAdmin() {
           </div>
           <form onSubmit={editingCustomer ? updateCustomer : addCustomer}>
             <div className="form-group">
+              <label>اسم الشركة</label>
               <input 
                 type="text" 
                 className="full-width" 
                 style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
-                placeholder="اسم الشركة"
                 value={editingCustomer ? editingCustomer.name : newCustomer.name}
                 onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, name: e.target.value}) : setNewCustomer({...newCustomer, name: e.target.value})}
                 required
               />
             </div>
-            <div className="form-group">
-              <input 
-                type="text" 
-                className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
-                placeholder="اسم المسؤول"
-                value={editingCustomer ? editingCustomer.admin_name : newCustomer.admin_name}
-                onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_name: e.target.value}) : setNewCustomer({...newCustomer, admin_name: e.target.value})}
-                required
-              />
+            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px', padding: 0, marginBottom: '15px' }}>
+              <div className="form-group">
+                <label>اسم المسؤول</label>
+                <input 
+                  type="text" 
+                  className="full-width" 
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  value={editingCustomer ? editingCustomer.admin_name : newCustomer.admin_name}
+                  onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_name: e.target.value}) : setNewCustomer({...newCustomer, admin_name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>رقم الهاتف</label>
+                <input 
+                  type="text" 
+                  className="full-width" 
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  value={editingCustomer ? editingCustomer.phone : newCustomer.phone}
+                  onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, phone: e.target.value}) : setNewCustomer({...newCustomer, phone: e.target.value})}
+                  required
+                />
+              </div>
             </div>
-            <div className="form-group">
-              <input 
-                type="text" 
-                className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
-                placeholder="رقم الهاتف"
-                value={editingCustomer ? editingCustomer.phone : newCustomer.phone}
-                onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, phone: e.target.value}) : setNewCustomer({...newCustomer, phone: e.target.value})}
-                required
-              />
+
+            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px', padding: 0, marginBottom: '15px' }}>
+              <div className="form-group">
+                <label>رقم الموظف (PIN)</label>
+                <input 
+                  type="text" 
+                  className="full-width" 
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  value={editingCustomer ? editingCustomer.admin_pin : newCustomer.admin_pin}
+                  onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_pin: e.target.value}) : setNewCustomer({...newCustomer, admin_pin: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>كلمة المرور</label>
+                <input 
+                  type="text" 
+                  className="full-width" 
+                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
+                  value={editingCustomer ? editingCustomer.admin_password : newCustomer.admin_password}
+                  onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_password: e.target.value}) : setNewCustomer({...newCustomer, admin_password: e.target.value})}
+                  required
+                />
+              </div>
             </div>
+
             <div className="form-group">
+              <label>البريد الإلكتروني (اختياري)</label>
               <input 
                 type="email" 
                 className="full-width" 
                 style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px' }}
-                placeholder="البريد الإلكتروني (اختياري)"
                 value={editingCustomer ? (editingCustomer.admin_email || '') : newCustomer.email}
                 onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_email: e.target.value}) : setNewCustomer({...newCustomer, email: e.target.value})}
               />
@@ -267,13 +295,14 @@ function SuperAdmin() {
               <th>ID</th>
               <th>الشركة / المسؤول</th>
               <th>بيانات الاتصال</th>
+              <th>بيانات الدخول (Admin)</th>
               <th>الأجهزة والاشتراكات</th>
               <th>إجراءات</th>
             </tr>
           </thead>
           <tbody>
             {customers.length === 0 ? (
-              <tr><td colSpan="5" className="text-center p-4">لا توجد شركات مسجلة بعد</td></tr>
+              <tr><td colSpan="6" className="text-center p-4">لا توجد شركات مسجلة بعد</td></tr>
             ) : (
               customers.map(c => {
                 const companyDevices = devices.filter(d => d.customer_id === c.id);
@@ -292,6 +321,12 @@ function SuperAdmin() {
                       <div style={{ display: 'flex', flexDirection: 'column', fontSize: '0.85rem' }}>
                         <span><Phone size={12} inline /> {c.phone || '—'}</span>
                         <span className="text-muted">{c.admin_email || '—'}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', fontSize: '0.85rem', color: '#fbbf24' }}>
+                        <span><Hash size={12} inline /> {c.admin_pin || '1000'}</span>
+                        <span><Lock size={12} inline /> {c.admin_password || 'admin'}</span>
                       </div>
                     </td>
                     <td>

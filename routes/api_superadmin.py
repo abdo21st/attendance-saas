@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import os
-from utils.database import get_db
+from utils.database import get_db, save_user
 from contextlib import closing
 import psycopg2.extras
 
@@ -21,16 +21,29 @@ def add_customer():
     admin_name = data.get('admin_name')
     phone = data.get('phone')
     email = data.get('email')
+    admin_pin = data.get('admin_pin', '1000')
+    admin_password = data.get('admin_password', 'admin')
     
     if not name: return jsonify({'error': 'Name required'}), 400
     
     with closing(get_db()) as conn:
         with conn.cursor() as cursor:
+            # إصلاح تسلسل الـ ID إذا كان هناك تعارض
+            cursor.execute("SELECT setval(pg_get_serial_sequence('customers', 'id'), coalesce(max(id),0) + 1, false) FROM customers")
+            
             cursor.execute('''
-                INSERT INTO Customers (name, admin_name, phone, admin_email) 
-                VALUES (%s, %s, %s, %s) RETURNING id
-            ''', (name, admin_name, phone, email))
+                INSERT INTO Customers (name, admin_name, phone, admin_email, admin_pin, admin_password) 
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+            ''', (name, admin_name, phone, email, admin_pin, admin_password))
             customer_id = cursor.fetchone()[0]
+            
+            # إضافة مدير النظام تلقائياً لجدول المستخدمين لهذه الشركة
+            cursor.execute('''
+                INSERT INTO Users (customer_id, pin, name, role, password)
+                VALUES (%s, %s, %s, 14, %s)
+                ON CONFLICT (customer_id, pin) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name
+            ''', (customer_id, admin_pin, admin_name or name, admin_password))
+            
         conn.commit()
         
     return jsonify({'success': True, 'customer_id': customer_id})
@@ -40,12 +53,28 @@ def update_customer(cid):
     if not check_token(): return jsonify({'error': 'Unauthorized'}), 401
     
     data = request.json or {}
+    name = data.get('name')
+    admin_name = data.get('admin_name')
+    phone = data.get('phone')
+    email = data.get('admin_email') # Frontend sends admin_email in editing object
+    admin_pin = data.get('admin_pin')
+    admin_password = data.get('admin_password')
+
     with closing(get_db()) as conn:
         with conn.cursor() as cursor:
             cursor.execute('''
-                UPDATE Customers SET name=%s, admin_name=%s, phone=%s, admin_email=%s
+                UPDATE Customers SET name=%s, admin_name=%s, phone=%s, admin_email=%s, admin_pin=%s, admin_password=%s
                 WHERE id=%s
-            ''', (data.get('name'), data.get('admin_name'), data.get('phone'), data.get('admin_email'), cid))
+            ''', (name, admin_name, phone, email, admin_pin, admin_password, cid))
+            
+            # تحديث مدير النظام في جدول المستخدمين
+            if admin_pin:
+                cursor.execute('''
+                    INSERT INTO Users (customer_id, pin, name, role, password)
+                    VALUES (%s, %s, %s, 14, %s)
+                    ON CONFLICT (customer_id, pin) DO UPDATE SET password = EXCLUDED.password, name = EXCLUDED.name
+                ''', (cid, admin_pin, admin_name or name, admin_password or 'admin'))
+                
         conn.commit()
     return jsonify({'success': True})
 
@@ -75,7 +104,6 @@ def update_device(sn):
     if not check_token(): return jsonify({'error': 'Unauthorized'}), 401
     
     data = request.json or {}
-    # تحديث تاريخ انتهاء الاشتراك أو حالة التفعيل
     with closing(get_db()) as conn:
         with conn.cursor() as cursor:
             cursor.execute('''

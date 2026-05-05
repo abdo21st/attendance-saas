@@ -47,6 +47,8 @@ def init_db():
                         admin_name VARCHAR(255),
                         phone VARCHAR(50),
                         admin_email VARCHAR(255),
+                        admin_pin VARCHAR(50),
+                        admin_password TEXT,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
