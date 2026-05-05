@@ -96,10 +96,30 @@ input { font-family: inherit; outline: none; }
   align-items: center;
 }
 
-.input-icon {
+.input-icon, .input-icon-text {
   position: absolute;
   right: 1rem;
   color: var(--text-secondary);
+}
+
+.input-icon-text {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.logo-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+  color: white;
+  padding: 0.2rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
 }
 
 .input-wrapper input {

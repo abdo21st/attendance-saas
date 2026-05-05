@@ -36,6 +36,7 @@ from routes.api_logs import api_logs_bp
 from routes.api_settings import api_settings_bp
 from routes.api_users import api_users_bp
 from routes.api_employee import api_employee_bp
+from routes.api_superadmin import api_superadmin_bp
 
 app.register_blueprint(api_auth_bp, url_prefix='/api/auth')
 app.register_blueprint(api_device_bp, url_prefix='/api/device')
@@ -43,6 +44,7 @@ app.register_blueprint(api_logs_bp, url_prefix='/api/logs')
 app.register_blueprint(api_settings_bp, url_prefix='/api/settings')
 app.register_blueprint(api_users_bp, url_prefix='/api/users')
 app.register_blueprint(api_employee_bp, url_prefix='/api/employee')
+app.register_blueprint(api_superadmin_bp, url_prefix='/api/superadmin')
 
 app.secret_key = 'super_secret_attendance_key_123!@#'
 ADMS_PORT = 8081

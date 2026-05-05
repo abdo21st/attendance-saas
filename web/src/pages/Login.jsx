@@ -3,6 +3,7 @@ import { Lock, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function Login({ setAuth }) {
+  const [companyId, setCompanyId] = useState('1');
   const [pin, setPin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,12 +15,12 @@ function Login({ setAuth }) {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin, password })
+        body: JSON.stringify({ company_id: companyId, pin, password })
       });
       const data = await response.json();
       
       if (data.success) {
-        localStorage.setItem('user', JSON.stringify({ pin }));
+        localStorage.setItem('user', JSON.stringify({ pin, companyId }));
         setAuth(true);
         navigate('/');
       } else {
@@ -34,13 +35,28 @@ function Login({ setAuth }) {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h2>ZKTeco System</h2>
-          <p>تسجيل الدخول للنظام</p>
+          <div className="logo-badge">SaaS</div>
+          <h2>ZKTeco Attendance</h2>
+          <p>بوابة إدارة الحضور والانصراف السحابية</p>
         </div>
         
         {error && <div className="alert-error">{error}</div>}
         
         <form onSubmit={handleLogin}>
+          <div className="form-group">
+            <label>رقم الشركة (Company ID)</label>
+            <div className="input-wrapper">
+              <span className="input-icon-text">#</span>
+              <input 
+                type="number" 
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                placeholder="أدخل رقم الشركة"
+                required
+              />
+            </div>
+          </div>
+
           <div className="form-group">
             <label>رقم الموظف (PIN)</label>
             <div className="input-wrapper">
@@ -69,7 +85,7 @@ function Login({ setAuth }) {
           </div>
           
           <button type="submit" className="btn-primary full-width">
-            دخول
+            دخول للنظام
           </button>
         </form>
       </div>

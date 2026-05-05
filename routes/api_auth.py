@@ -7,16 +7,21 @@ api_auth_bp = Blueprint('api_auth', __name__)
 @api_auth_bp.route('/login', methods=['POST'])
 def api_auth_login():
     data = request.json or {}
+    company_id = data.get('company_id', 1)
     pin = str(data.get('pin', '')).strip()
     pwd = str(data.get('password', '')).strip()
 
     if not pin:
         return jsonify({'success': False, 'error': 'رقم الموظف مطلوب'}), 400
 
-    customer_id = session.get('customer_id', 1)
+    try:
+        customer_id = int(company_id)
+    except:
+        return jsonify({'success': False, 'error': 'رقم الشركة غير صحيح'}), 400
+
     user = get_user_by_pin(customer_id, pin)
     if not user:
-        return jsonify({'success': False, 'error': 'رقم الموظف غير صحيح'}), 401
+        return jsonify({'success': False, 'error': 'رقم الموظف أو رقم الشركة غير صحيح'}), 401
     
     stored_pwd = str(user.get('password', '')).strip()
     if not stored_pwd:
