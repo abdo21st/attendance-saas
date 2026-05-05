@@ -1,0 +1,22 @@
+{
+  "name": "نظام الحضور والرواتب",
+  "short_name": "بوابة الموظفين",
+  "description": "تطبيق لمتابعة الحضور والانصراف والرواتب للموظفين.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#3b8ed0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

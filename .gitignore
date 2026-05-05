@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python
+__pycache__/
+*.pyc
+*.db
+*.sqlite3
+
+# Build & Logs
+build/
+dist/
+logs/
+*.bak
+*.spec
+
+# React App
+web/node_modules/
+web/dist/
