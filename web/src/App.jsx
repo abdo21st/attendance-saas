@@ -7,6 +7,7 @@ import Logs from './pages/Logs';
 import Layout from './components/Layout';
 import EmployeeLogin from './pages/EmployeeLogin';
 import EmployeeDashboard from './pages/EmployeeDashboard';
+import SuperAdmin from './pages/SuperAdmin';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,6 +38,8 @@ function App() {
         <Route path="/employee-dashboard" element={
           isEmpAuthenticated ? <EmployeeDashboard setEmpAuth={setIsEmpAuthenticated} /> : <Navigate to="/employee-login" />
         } />
+        
+        <Route path="/superadmin" element={<SuperAdmin />} />
         
         {/* Protected Routes */}
         <Route path="/" element={
