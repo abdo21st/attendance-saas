@@ -80,51 +80,65 @@ function Employees() {
       {msg.text && <div className={`alert-${msg.type} mt-4`}>{msg.text}</div>}
 
       {(isAdding || editingEmp) && (
-        <div className="stat-card mt-4" style={{ display: 'block' }}>
-          <h2 className="mb-4">{isAdding ? 'إضافة موظف جديد' : 'تعديل بيانات الموظف'}</h2>
-          <form onSubmit={handleSave} className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', padding: 0 }}>
-            <div className="form-group">
-              <label>رقم الموظف (PIN)</label>
-              <input 
-                type="text" 
-                value={isAdding ? newEmp.pin : editingEmp.pin}
-                onChange={(e) => isAdding ? setNewEmp({...newEmp, pin: e.target.value}) : setEditingEmp({...editingEmp, pin: e.target.value})}
-                readOnly={!isAdding}
-                required
-              />
+        <div className="stat-card mt-4" style={{ display: 'block', padding: '2rem' }}>
+          <h2 className="mb-6 text-center" style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>
+            {isAdding ? 'إضافة موظف جديد' : 'تعديل بيانات الموظف'}
+          </h2>
+          <form onSubmit={handleSave} style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '1.5rem', 
+              marginBottom: '2rem' 
+            }}>
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>رقم الموظف (PIN)</label>
+                <input 
+                  type="text" 
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+                  value={isAdding ? newEmp.pin : editingEmp.pin}
+                  onChange={(e) => isAdding ? setNewEmp({...newEmp, pin: e.target.value}) : setEditingEmp({...editingEmp, pin: e.target.value})}
+                  readOnly={!isAdding}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>الاسم الكامل</label>
+                <input 
+                  type="text" 
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+                  value={isAdding ? newEmp.name : editingEmp.name}
+                  onChange={(e) => isAdding ? setNewEmp({...newEmp, name: e.target.value}) : setEditingEmp({...editingEmp, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>كلمة المرور (للموقع)</label>
+                <input 
+                  type="password" 
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+                  value={isAdding ? newEmp.password : editingEmp.password}
+                  onChange={(e) => isAdding ? setNewEmp({...newEmp, password: e.target.value}) : setEditingEmp({...editingEmp, password: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>الأجر الساعي ($)</label>
+                <input 
+                  type="number" 
+                  step="0.1"
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)', color: 'white' }}
+                  value={isAdding ? newEmp.hourly_rate : editingEmp.hourly_rate}
+                  onChange={(e) => isAdding ? setNewEmp({...newEmp, hourly_rate: e.target.value}) : setEditingEmp({...editingEmp, hourly_rate: e.target.value})}
+                />
+              </div>
             </div>
-            <div className="form-group">
-              <label>الاسم الكامل</label>
-              <input 
-                type="text" 
-                value={isAdding ? newEmp.name : editingEmp.name}
-                onChange={(e) => isAdding ? setNewEmp({...newEmp, name: e.target.value}) : setEditingEmp({...editingEmp, name: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>كلمة المرور (للموقع)</label>
-              <input 
-                type="password" 
-                value={isAdding ? newEmp.password : editingEmp.password}
-                onChange={(e) => isAdding ? setNewEmp({...newEmp, password: e.target.value}) : setEditingEmp({...editingEmp, password: e.target.value})}
-              />
-            </div>
-            <div className="form-group">
-              <label>الأجر الساعي ($)</label>
-              <input 
-                type="number" 
-                step="0.1"
-                value={isAdding ? newEmp.hourly_rate : editingEmp.hourly_rate}
-                onChange={(e) => isAdding ? setNewEmp({...newEmp, hourly_rate: e.target.value}) : setEditingEmp({...editingEmp, hourly_rate: e.target.value})}
-              />
-            </div>
-            <div className="flex-gap" style={{ gridColumn: '1 / -1', justifyContent: 'flex-end' }}>
-              <button type="button" className="btn-secondary" onClick={() => { setIsAdding(false); setEditingEmp(null); }}>
-                <X size={18} /> إلغاء
-              </button>
-              <button type="submit" className="btn-primary">
+            
+            <div className="flex-center" style={{ gap: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem' }}>
+              <button type="submit" className="btn-primary" style={{ minWidth: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                 <Save size={18} /> حفظ البيانات
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => { setIsAdding(false); setEditingEmp(null); }} style={{ minWidth: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', fontWeight: '700' }}>
+                <X size={18} /> إلغاء
               </button>
             </div>
           </form>
