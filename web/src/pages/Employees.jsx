@@ -73,9 +73,6 @@ function Employees() {
         )}
       </header>
 
-      <div className="alert-info mt-2 mb-2" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid #3b82f6', padding: '10px', borderRadius: '8px', color: '#60a5fa', fontSize: '0.9rem' }}>
-        <Info size={16} inline /> <strong>ملاحظة:</strong> النظام يقوم فقط باستقبال البيانات من أجهزة البصمة ولا يقوم بتغيير أي بيانات داخل الجهاز لضمان سلامة الأجهزة.
-      </div>
 
       {msg.text && <div className={`alert-${msg.type} mt-4`}>{msg.text}</div>}
 
