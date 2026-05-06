@@ -85,12 +85,12 @@ function Settings() {
         <div className="table-container">
           <table className="data-table">
             <thead>
-              <tr>
-                <th>اسم القاعدة</th>
-                <th>النوع</th>
-                <th>القيمة ($)</th>
-                <th>تنطبق على</th>
-                <th>إجراءات</th>
+              <tr style={{ background: 'rgba(0,0,0,0.2)' }}>
+                <th style={{ textAlign: 'center', padding: '1.2rem', color: 'var(--text-secondary)' }}>اسم القاعدة</th>
+                <th style={{ textAlign: 'center', padding: '1.2rem', color: 'var(--text-secondary)' }}>النوع</th>
+                <th style={{ textAlign: 'center', padding: '1.2rem', color: 'var(--text-secondary)' }}>القيمة ($)</th>
+                <th style={{ textAlign: 'center', padding: '1.2rem', color: 'var(--text-secondary)' }}>تنطبق على</th>
+                <th style={{ textAlign: 'center', padding: '1.2rem', color: 'var(--text-secondary)' }}>إجراءات</th>
               </tr>
             </thead>
             <tbody>
@@ -98,47 +98,87 @@ function Settings() {
                 <tr><td colSpan="5" className="text-center p-4">لا توجد قواعد مضافة حالياً</td></tr>
               ) : (
                 rules.map((rule, index) => (
-                  <tr key={index}>
-                    <td>
+                  <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <td style={{ padding: '1rem' }}>
                       <input 
                         type="text" 
                         className="table-input" 
                         value={rule.name}
                         onChange={(e) => updateRule(index, 'name', e.target.value)}
+                        placeholder="مثال: مكافأة الأداء"
+                        style={{ 
+                          width: '100%',
+                          background: 'rgba(255,255,255,0.05)', 
+                          color: 'white', 
+                          padding: '0.7rem', 
+                          borderRadius: 'var(--radius-md)', 
+                          border: '1px solid var(--border-color)',
+                          textAlign: 'center'
+                        }}
                       />
                     </td>
-                    <td>
+                    <td style={{ padding: '1rem' }}>
                       <select 
                         className="table-input"
                         value={rule.rule_type}
                         onChange={(e) => updateRule(index, 'rule_type', e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          background: 'rgba(255,255,255,0.05)', 
+                          color: 'white', 
+                          padding: '0.7rem', 
+                          borderRadius: 'var(--radius-md)', 
+                          border: '1px solid var(--border-color)',
+                          textAlign: 'center'
+                        }}
                       >
                         <option value="shift_bonus">مكافأة وردية كاملة</option>
                         <option value="daily_bonus">مكافأة يومية</option>
                       </select>
                     </td>
-                    <td>
+                    <td style={{ padding: '1rem' }}>
                       <input 
                         type="number" 
+                        min="0"
                         className="table-input" 
                         value={rule.rate_value}
                         onChange={(e) => updateRule(index, 'rate_value', e.target.value)}
-                        style={{ width: '80px' }}
+                        style={{ 
+                          width: '100px', 
+                          margin: '0 auto',
+                          background: 'rgba(255,255,255,0.05)', 
+                          color: 'white', 
+                          padding: '0.7rem', 
+                          borderRadius: 'var(--radius-md)', 
+                          border: '1px solid var(--border-color)',
+                          textAlign: 'center'
+                        }}
                       />
                     </td>
-                    <td>
+                    <td style={{ padding: '1rem' }}>
                       <input 
                         type="text" 
                         className="table-input" 
-                        placeholder="رقم الموظف (اتركه فارغاً للكل)"
+                        placeholder="اتركه فارغاً للكل"
                         value={rule.user_pin}
                         onChange={(e) => updateRule(index, 'user_pin', e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          background: 'rgba(255,255,255,0.05)', 
+                          color: 'white', 
+                          padding: '0.7rem', 
+                          borderRadius: 'var(--radius-md)', 
+                          border: '1px solid var(--border-color)',
+                          textAlign: 'center'
+                        }}
                       />
                     </td>
-                    <td>
-                      <button className="btn-icon text-danger" onClick={() => removeRule(index)}>
-                        <Trash2 size={18} />
-                      </button>
+                    <td style={{ padding: '1rem' }}>
+                      <div className="flex-center">
+                        <button className="btn-icon text-danger" onClick={() => removeRule(index)} style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: '50%', width: '35px', height: '35px' }}>
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
