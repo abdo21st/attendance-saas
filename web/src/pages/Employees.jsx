@@ -80,120 +80,51 @@ function Employees() {
       {msg.text && <div className={`alert-${msg.type} mt-4`}>{msg.text}</div>}
 
       {(isAdding || editingEmp) && (
-        <div className="stat-card mt-6" style={{ position: 'relative', overflow: 'hidden' }}>
-          <div className="flex-between mb-8">
-            <h2 className="text-gradient" style={{ fontSize: '1.6rem', margin: '0 auto' }}>
-              {isAdding ? 'إضافة موظف جديد' : 'تعديل بيانات الموظف'}
-            </h2>
-            <button 
-              className="btn-icon" 
-              style={{ position: 'absolute', top: '1.5rem', left: '1.5rem' }}
-              onClick={() => { setIsAdding(false); setEditingEmp(null); }}
-            >
-              <X size={20} />
-            </button>
-          </div>
-          
-          <form onSubmit={handleSave} className="max-w-4xl mx-auto">
-            <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '30px' }}>
-              <div className="form-group">
-                <label>رقم الموظف (PIN)</label>
-                <input 
-                  type="text" 
-                  value={isAdding ? newEmp.pin : editingEmp.pin}
-                  onChange={(e) => isAdding ? setNewEmp({...newEmp, pin: e.target.value}) : setEditingEmp({...editingEmp, pin: e.target.value})}
-                  readOnly={!isAdding}
-                  placeholder="رقم الموظف (PIN)"
-                  required
-                  style={{ 
-                    background: '#0f172a', 
-                    color: 'white', 
-                    padding: '1.2rem', 
-                    borderRadius: '0', 
-                    border: 'none', 
-                    fontSize: '1.1rem',
-                    textAlign: 'center',
-                    width: '100%',
-                    boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.3)'
-                  }}
-                />
-              </div>
-              <div className="form-group">
-                <label>الاسم الكامل</label>
-                <input 
-                  type="text" 
-                  value={isAdding ? newEmp.name : editingEmp.name}
-                  onChange={(e) => isAdding ? setNewEmp({...newEmp, name: e.target.value}) : setEditingEmp({...editingEmp, name: e.target.value})}
-                  placeholder="اسم الموظف"
-                  required
-                  style={{ 
-                    background: '#0f172a', 
-                    color: 'white', 
-                    padding: '1.2rem', 
-                    borderRadius: '0', 
-                    border: 'none', 
-                    fontSize: '1.1rem',
-                    textAlign: 'center',
-                    width: '100%',
-                    boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.3)'
-                  }}
-                />
-              </div>
-              <div className="form-group">
-                <label>كلمة المرور (للموقع)</label>
-                <input 
-                  type="password" 
-                  value={isAdding ? newEmp.password : editingEmp.password}
-                  onChange={(e) => isAdding ? setNewEmp({...newEmp, password: e.target.value}) : setEditingEmp({...editingEmp, password: e.target.value})}
-                  placeholder="تلقائي: 123456"
-                  style={{ 
-                    background: '#0f172a', 
-                    color: 'white', 
-                    padding: '1.2rem', 
-                    borderRadius: '0', 
-                    border: 'none', 
-                    fontSize: '1.1rem',
-                    textAlign: 'center',
-                    width: '100%',
-                    boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.3)'
-                  }}
-                />
-              </div>
-              <div className="form-group">
-                <label>الأجر الساعي ($)</label>
-                <input 
-                  type="number" 
-                  step="0.1"
-                  min="0"
-                  value={isAdding ? newEmp.hourly_rate : editingEmp.hourly_rate}
-                  onChange={(e) => isAdding ? setNewEmp({...newEmp, hourly_rate: e.target.value}) : setEditingEmp({...editingEmp, hourly_rate: e.target.value})}
-                  placeholder="0.00"
-                  style={{ 
-                    background: '#0f172a', 
-                    color: 'white', 
-                    padding: '1.2rem', 
-                    borderRadius: '0', 
-                    border: 'none', 
-                    fontSize: '1.1rem',
-                    textAlign: 'center',
-                    width: '100%',
-                    boxShadow: 'inset 0 4px 8px rgba(0,0,0,0.3)'
-                  }}
-                />
-              </div>
+        <div className="stat-card mt-4" style={{ display: 'block' }}>
+          <h2 className="mb-4">{isAdding ? 'إضافة موظف جديد' : 'تعديل بيانات الموظف'}</h2>
+          <form onSubmit={handleSave} className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', padding: 0 }}>
+            <div className="form-group">
+              <label>رقم الموظف (PIN)</label>
+              <input 
+                type="text" 
+                value={isAdding ? newEmp.pin : editingEmp.pin}
+                onChange={(e) => isAdding ? setNewEmp({...newEmp, pin: e.target.value}) : setEditingEmp({...editingEmp, pin: e.target.value})}
+                readOnly={!isAdding}
+                required
+              />
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '350px', margin: '2.5rem auto 0' }}>
-              <button type="submit" className="btn-primary" style={{ borderRadius: '0', padding: '1.2rem', fontSize: '1.1rem' }}>
-                <Save size={22} /> حفظ بيانات الموظف
+            <div className="form-group">
+              <label>الاسم الكامل</label>
+              <input 
+                type="text" 
+                value={isAdding ? newEmp.name : editingEmp.name}
+                onChange={(e) => isAdding ? setNewEmp({...newEmp, name: e.target.value}) : setEditingEmp({...editingEmp, name: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>كلمة المرور (للموقع)</label>
+              <input 
+                type="password" 
+                value={isAdding ? newEmp.password : editingEmp.password}
+                onChange={(e) => isAdding ? setNewEmp({...newEmp, password: e.target.value}) : setEditingEmp({...editingEmp, password: e.target.value})}
+              />
+            </div>
+            <div className="form-group">
+              <label>الأجر الساعي ($)</label>
+              <input 
+                type="number" 
+                step="0.1"
+                value={isAdding ? newEmp.hourly_rate : editingEmp.hourly_rate}
+                onChange={(e) => isAdding ? setNewEmp({...newEmp, hourly_rate: e.target.value}) : setEditingEmp({...editingEmp, hourly_rate: e.target.value})}
+              />
+            </div>
+            <div className="flex-gap" style={{ gridColumn: '1 / -1', justifyContent: 'flex-end' }}>
+              <button type="button" className="btn-secondary" onClick={() => { setIsAdding(false); setEditingEmp(null); }}>
+                <X size={18} /> إلغاء
               </button>
-              <button 
-                type="button" 
-                className="btn-secondary" 
-                onClick={() => { setIsAdding(false); setEditingEmp(null); }}
-                style={{ borderRadius: '0', padding: '1.2rem', fontSize: '1.1rem' }}
-              >
-                إلغاء العملية
+              <button type="submit" className="btn-primary">
+                <Save size={18} /> حفظ البيانات
               </button>
             </div>
           </form>
