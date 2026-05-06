@@ -67,18 +67,18 @@ function Settings() {
           <h1>إعدادات الأجور والمكافآت</h1>
           <p>حدد قواعد "منحة التميز" والحسابات المالية لشركتك</p>
         </div>
-        <button className="btn-primary" onClick={saveSettings}>
-          <Save size={18} /> حفظ الإعدادات
+        <button className="btn-primary flex-center gap-2" onClick={saveSettings}>
+          <Save size={20} /> حفظ الإعدادات
         </button>
       </header>
 
       {msg.text && <div className={`alert-${msg.type}`}>{msg.text}</div>}
 
-      <div className="stat-card" style={{ display: 'block' }}>
-        <div className="flex-between mb-4">
-          <h2 style={{ fontSize: '1.2rem' }}><Award size={20} inline /> قواعد منحة التميز (Premium Rules)</h2>
-          <button className="btn-icon" style={{ background: 'var(--success)', color: 'white', borderRadius: '50%' }} onClick={addRule}>
-            <Plus size={20} />
+      <div className="stat-card mt-4" style={{ display: 'block', padding: '2rem' }}>
+        <div className="flex-between mb-6">
+          <h2 className="flex-gap" style={{ fontSize: '1.3rem' }}><Award size={24} className="text-purple" /> قواعد منحة التميز (Premium Rules)</h2>
+          <button className="btn-primary flex-center" style={{ borderRadius: '50%', width: '45px', height: '45px', padding: 0, background: 'var(--success)', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }} onClick={addRule}>
+            <Plus size={24} />
           </button>
         </div>
 
@@ -86,16 +86,16 @@ function Settings() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>اسم القاعدة</th>
-                <th>النوع</th>
-                <th>القيمة ($)</th>
-                <th>تنطبق على</th>
-                <th>إجراءات</th>
+                <th style={{ textAlign: 'right' }}>اسم القاعدة</th>
+                <th style={{ textAlign: 'center' }}>النوع</th>
+                <th style={{ textAlign: 'center' }}>القيمة ($)</th>
+                <th style={{ textAlign: 'center' }}>تنطبق على</th>
+                <th style={{ textAlign: 'center' }}>إجراءات</th>
               </tr>
             </thead>
             <tbody>
               {rules.length === 0 ? (
-                <tr><td colSpan="5" className="text-center p-4">لا توجد قواعد مضافة حالياً</td></tr>
+                <tr><td colSpan="5" className="text-center p-8 text-muted">لا توجد قواعد مضافة حالياً. اضغط على الزر (+) لإضافة قاعدة جديدة.</td></tr>
               ) : (
                 rules.map((rule, index) => (
                   <tr key={index}>
@@ -105,6 +105,15 @@ function Settings() {
                         className="table-input" 
                         value={rule.name}
                         onChange={(e) => updateRule(index, 'name', e.target.value)}
+                        placeholder="مثال: مكافأة الأداء"
+                        style={{ 
+                          background: '#0f172a', 
+                          color: 'white', 
+                          padding: '0.8rem', 
+                          borderRadius: '0', 
+                          border: 'none',
+                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                        }}
                       />
                     </td>
                     <td>
@@ -112,6 +121,14 @@ function Settings() {
                         className="table-input"
                         value={rule.rule_type}
                         onChange={(e) => updateRule(index, 'rule_type', e.target.value)}
+                        style={{ 
+                          textAlign: 'right',
+                          background: '#0f172a', 
+                          color: 'white', 
+                          padding: '0.8rem', 
+                          borderRadius: '0', 
+                          border: 'none'
+                        }}
                       >
                         <option value="shift_bonus">مكافأة وردية كاملة</option>
                         <option value="daily_bonus">مكافأة يومية</option>
@@ -120,25 +137,45 @@ function Settings() {
                     <td>
                       <input 
                         type="number" 
+                        min="0"
                         className="table-input" 
                         value={rule.rate_value}
                         onChange={(e) => updateRule(index, 'rate_value', e.target.value)}
-                        style={{ width: '80px' }}
+                        style={{ 
+                          width: '100px', 
+                          margin: '0 auto',
+                          background: '#0f172a', 
+                          color: 'white', 
+                          padding: '0.8rem', 
+                          borderRadius: '0', 
+                          border: 'none',
+                          textAlign: 'center'
+                        }}
                       />
                     </td>
                     <td>
                       <input 
                         type="text" 
                         className="table-input" 
-                        placeholder="رقم الموظف (اتركه فارغاً للكل)"
+                        placeholder="الكل"
                         value={rule.user_pin}
                         onChange={(e) => updateRule(index, 'user_pin', e.target.value)}
+                        style={{ 
+                          textAlign: 'center',
+                          background: '#0f172a', 
+                          color: 'white', 
+                          padding: '0.8rem', 
+                          borderRadius: '0', 
+                          border: 'none'
+                        }}
                       />
                     </td>
                     <td>
-                      <button className="btn-icon text-danger" onClick={() => removeRule(index)}>
-                        <Trash2 size={18} />
-                      </button>
+                      <div className="flex-center">
+                        <button className="btn-icon text-danger" onClick={() => removeRule(index)}>
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

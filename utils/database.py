@@ -15,6 +15,16 @@ DB_NAME = os.environ.get('DB_NAME', 'attendance_db')
 DB_USER = os.environ.get('DB_USER', 'n8n')
 DB_PASSWORD = os.environ.get('DB_PASSWORD', 'n8nDbPass2024')
 
+# كائن معلومات الجهاز الافتراضي (سيتم تحديثه برمجياً)
+device_info = {
+    'sn': None,
+    'connected': False,
+    'model': 'N/A',
+    'last_seen': 'N/A',
+    'log_count': 0,
+    'user_count': 0
+}
+
 # إنشاء مجمع اتصالات (Connection Pool) لضمان الاستقرار
 try:
     db_pool = pool.ThreadedConnectionPool(
@@ -175,7 +185,9 @@ def init_db():
 def check_device_subscription(sn):
     with get_db_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-            if not sn: return 1
+            if not sn: 
+                log_system_event(1, 'ERROR', 'محاولة مصافحة بدون رقم تسلسلي (SN Missing)')
+                return None
             
             cursor.execute("SELECT customer_id, subscription_end, is_active FROM Devices WHERE sn = %s", (sn,))
             device = cursor.fetchone()
@@ -258,11 +270,24 @@ def delete_user(customer_id, pin):
             cursor.execute("DELETE FROM Users WHERE customer_id = %s AND pin = %s", (customer_id, str(pin)))
         conn.commit()
 
-def get_recent_logs(customer_id=1, limit=2000):
+def get_recent_logs(customer_id=1, limit=50, offset=0):
     with get_db_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-            cursor.execute("SELECT user_pin, to_char(timestamp, 'YYYY-MM-DD HH24:MI:SS') as timestamp, verify_method, to_char(received_at, 'YYYY-MM-DD HH24:MI:SS') as received_at FROM Attendance WHERE customer_id = %s ORDER BY timestamp DESC LIMIT %s", (customer_id, limit))
+            cursor.execute('''
+                SELECT a.user_pin, u.name as user_name, to_char(a.timestamp, 'YYYY-MM-DD HH24:MI:SS') as timestamp, 
+                       a.verify_method, to_char(a.received_at, 'YYYY-MM-DD HH24:MI:SS') as received_at 
+                FROM Attendance a
+                LEFT JOIN Users u ON a.customer_id = u.customer_id AND a.user_pin = u.pin
+                WHERE a.customer_id = %s 
+                ORDER BY a.timestamp DESC LIMIT %s OFFSET %s
+            ''', (customer_id, limit, offset))
             return [dict(row) for row in cursor.fetchall()]
+
+def get_logs_count(customer_id=1):
+    with get_db_conn() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM Attendance WHERE customer_id = %s", (customer_id,))
+            return cursor.fetchone()[0]
 
 def get_user_logs(customer_id, pin, start_date, end_date):
     with get_db_conn() as conn:
@@ -286,7 +311,9 @@ def add_attendance_log(customer_id, pin, timestamp, verify_method=0, received_at
                 if cursor.rowcount == 0: return False
             conn.commit()
         return True
-    except: return False
+    except Exception as e:
+        log_system_event(customer_id, 'ERROR', f'فشل إضافة سجل بصمة: {str(e)}')
+        return False
 
 def get_setting(customer_id, key, default=None):
     with get_db_conn() as conn:
@@ -307,4 +334,62 @@ def save_setting(customer_id, key, value):
                 INSERT INTO Settings (customer_id, key, value) VALUES (%s, %s, %s)
                 ON CONFLICT (customer_id, key) DO UPDATE SET value = EXCLUDED.value
             ''', (customer_id, key, str(value)))
+        conn.commit()
+
+# --- البصمات (Attendance) ---
+def edit_attendance_log(customer_id, pin, old_timestamp, new_timestamp):
+    try:
+        with get_db_conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute('''
+                    UPDATE Attendance SET timestamp = %s 
+                    WHERE customer_id = %s AND user_pin = %s AND timestamp = %s
+                ''', (new_timestamp, customer_id, str(pin), old_timestamp))
+                if cursor.rowcount == 0: return False
+            conn.commit()
+        return True
+    except Exception as e:
+        log_system_event(customer_id, 'ERROR', f'فشل تعديل سجل بصمة: {str(e)}')
+        return False
+
+def delete_attendance_log(customer_id, pin, timestamp):
+    try:
+        with get_db_conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute('''
+                    DELETE FROM Attendance 
+                    WHERE customer_id = %s AND user_pin = %s AND timestamp = %s
+                ''', (customer_id, str(pin), timestamp))
+                if cursor.rowcount == 0: return False
+            conn.commit()
+        return True
+    except Exception as e:
+        log_system_event(customer_id, 'ERROR', f'فشل حذف سجل بصمة: {str(e)}')
+        return False
+
+# --- المهام الإضافية (Extra Tasks) ---
+def get_extra_tasks_for_user(customer_id, pin, start_date=None, end_date=None):
+    with get_db_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            query = "SELECT * FROM ExtraTasks WHERE customer_id = %s AND user_pin = %s"
+            params = [customer_id, str(pin)]
+            if start_date and end_date:
+                query += " AND date >= %s AND date <= %s"
+                params.extend([start_date, end_date])
+            cursor.execute(query, params)
+            return [dict(row) for row in cursor.fetchall()]
+
+def save_extra_task(customer_id, pin, task_name, task_value, date, is_monthly=0):
+    with get_db_conn() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute('''
+                INSERT INTO ExtraTasks (customer_id, user_pin, task_name, task_value, date, is_monthly)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            ''', (customer_id, str(pin), task_name, float(task_value), date, int(is_monthly)))
+        conn.commit()
+
+def delete_extra_task(customer_id, task_id):
+    with get_db_conn() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM ExtraTasks WHERE customer_id = %s AND id = %s", (customer_id, task_id))
         conn.commit()

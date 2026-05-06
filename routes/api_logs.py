@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session
-from utils.database import get_recent_logs, add_attendance_log, edit_attendance_log, delete_attendance_log, device_info
+from utils.database import get_recent_logs, add_attendance_log, edit_attendance_log, delete_attendance_log, device_info, get_logs_count
 from utils.events import broadcast, log_msg
 from utils.auth import permission_required
 
@@ -10,16 +10,34 @@ def get_customer_id():
 
 @api_logs_bp.route('')
 def api_logs_list():
-    logs = get_recent_logs(get_customer_id(), 2000)
+    try:
+        limit = int(request.args.get('limit', 50))
+        offset = int(request.args.get('offset', 0))
+    except:
+        limit, offset = 50, 0
+        
+    customer_id = get_customer_id()
+    logs = get_recent_logs(customer_id, limit, offset)
+    total = get_logs_count(customer_id)
+    
     formatted_logs = []
     for l in logs:
         formatted_logs.append({
             'UserId': l['user_pin'],
+            'UserName': l['user_name'] or f"مستخدم {l['user_pin']}",
             'Timestamp': l['timestamp'],
             'VerifyMethod': l['verify_method'],
             'ReceivedAt': l['received_at']
         })
-    return jsonify({'success': True, 'data': formatted_logs})
+    return jsonify({
+        'success': True, 
+        'data': formatted_logs,
+        'pagination': {
+            'total': total,
+            'limit': limit,
+            'offset': offset
+        }
+    })
 
 @api_logs_bp.route('/manual', methods=['POST'])
 @permission_required('add_logs')
@@ -29,6 +47,12 @@ def api_add_manual_log():
     timestamp = str(data.get('timestamp', '')).strip() # format: YYYY-MM-DD HH:MM:SS
     if not pin or not timestamp:
         return jsonify({'success': False, 'error': 'بيانات غير مكتملة'}), 400
+    
+    # تحقق أمني: هل الموظف موجود؟
+    from utils.database import get_user_by_pin
+    user = get_user_by_pin(get_customer_id(), pin)
+    if not user:
+        return jsonify({'success': False, 'error': 'رقم الموظف غير صحيح أو غير موجود'}), 404
     
     success = add_attendance_log(get_customer_id(), pin, timestamp, verify_method=0)
     if not success:

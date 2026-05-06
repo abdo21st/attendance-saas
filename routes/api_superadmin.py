@@ -97,6 +97,27 @@ def add_device():
         conn.commit()
         
     return jsonify({'success': True})
+@api_superadmin_bp.route('/logs', methods=['GET'])
+def get_system_logs():
+    token = request.headers.get('X-Super-Admin-Token')
+    if token != ADMIN_TOKEN:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from utils.database import get_db_conn
+    import psycopg2.extras
+    
+    with get_db_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+            cursor.execute('''
+                SELECT l.id, l.customer_id, c.name as customer_name, l.level, l.message, 
+                       l.device_sn, to_char(l.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at
+                FROM SystemLogs l
+                LEFT JOIN Customers c ON l.customer_id = c.id
+                ORDER BY l.created_at DESC LIMIT 500
+            ''')
+            logs = [dict(row) for row in cursor.fetchall()]
+    
+    return jsonify({'success': True, 'logs': logs})
 
 @api_superadmin_bp.route('/devices/<sn>', methods=['PUT'])
 def update_device(sn):

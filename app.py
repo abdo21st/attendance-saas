@@ -46,7 +46,8 @@ app.register_blueprint(api_users_bp, url_prefix='/api/users')
 app.register_blueprint(api_employee_bp, url_prefix='/api/employee')
 app.register_blueprint(api_superadmin_bp, url_prefix='/api/superadmin')
 
-app.secret_key = 'super_secret_attendance_key_123!@#'
+# مفتاح سري للجلسات (يفضل تغييره من متغيرات البيئة في الإنتاج)
+app.secret_key = os.environ.get('SECRET_KEY', '7fb8c9d0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0')
 
 # ===================================================
 # مسارات ADMS الأساسية - Multi-Tenant

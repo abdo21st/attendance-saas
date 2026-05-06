@@ -85,10 +85,10 @@ function Login({ setAuth }) {
               <button 
                 type="button" 
                 className="btn-icon" 
-                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', padding: '0.2rem' }}
+                style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none' }}
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={20} className="text-muted" /> : <Eye size={20} className="text-muted" />}
               </button>
             </div>
           </div>

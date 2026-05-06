@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User, Lock, Hash, Eye, EyeOff } from 'lucide-react';
+import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User, Lock, Hash, Eye, EyeOff, RefreshCw } from 'lucide-react';
 
 function SuperAdmin() {
   const [token, setToken] = useState('AdminSecret2024');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [devices, setDevices] = useState([]);
+  const [systemLogs, setSystemLogs] = useState([]);
   
   // Forms
   const [newCustomer, setNewCustomer] = useState({ name: '', admin_name: '', phone: '', email: '', admin_pin: '1000', admin_password: 'admin' });
@@ -33,8 +34,23 @@ function SuperAdmin() {
     }
   };
 
+  const fetchSystemLogs = async () => {
+    try {
+      const res = await fetch('/api/superadmin/logs', {
+        headers: { 'X-Super-Admin-Token': token }
+      });
+      const data = await res.json();
+      if (data.success) setSystemLogs(data.logs);
+    } catch (err) {}
+  };
+
   useEffect(() => {
-    if (isAuthorized) fetchAll();
+    if (isAuthorized) {
+      fetchAll();
+      fetchSystemLogs();
+      const interval = setInterval(fetchSystemLogs, 30000);
+      return () => clearInterval(interval);
+    }
   }, [isAuthorized]);
 
   const addCustomer = async (e) => {
@@ -151,30 +167,28 @@ function SuperAdmin() {
 
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))' }}>
         {/* إضافة شركة */}
-        <div className="stat-card" style={{ display: 'block', height: 'fit-content' }}>
-          <div className="flex-between mb-4">
-            <h3 style={{ color: 'var(--text-primary)' }}>{editingCustomer ? 'تعديل شركة' : 'إضافة شركة جديدة'}</h3>
-            <Building size={24} className="text-blue" />
+        <div className="stat-card" style={{ display: 'block', height: 'fit-content', padding: '2rem' }}>
+          <div className="flex-between mb-6">
+            <h3 style={{ color: 'var(--text-primary)', fontSize: '1.4rem' }}>{editingCustomer ? 'تعديل شركة' : 'إضافة شركة جديدة'}</h3>
+            <Building size={32} className="text-blue" />
           </div>
           <form onSubmit={editingCustomer ? updateCustomer : addCustomer}>
             <div className="form-group">
               <label>اسم الشركة</label>
               <input 
                 type="text" 
-                className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                placeholder="مثال: شركة النور"
                 value={editingCustomer ? editingCustomer.name : newCustomer.name}
                 onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, name: e.target.value}) : setNewCustomer({...newCustomer, name: e.target.value})}
                 required
               />
             </div>
-            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px', padding: 0, marginBottom: '15px' }}>
+            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px', padding: 0, marginBottom: '0' }}>
               <div className="form-group">
                 <label>اسم المسؤول</label>
                 <input 
                   type="text" 
-                  className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                  placeholder="الاسم الثلاثي"
                   value={editingCustomer ? editingCustomer.admin_name : newCustomer.admin_name}
                   onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_name: e.target.value}) : setNewCustomer({...newCustomer, admin_name: e.target.value})}
                   required
@@ -184,8 +198,7 @@ function SuperAdmin() {
                 <label>رقم الهاتف</label>
                 <input 
                   type="text" 
-                  className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                  placeholder="09XXXXXXXX"
                   value={editingCustomer ? editingCustomer.phone : newCustomer.phone}
                   onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, phone: e.target.value}) : setNewCustomer({...newCustomer, phone: e.target.value})}
                   required
@@ -193,13 +206,12 @@ function SuperAdmin() {
               </div>
             </div>
 
-            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '10px', padding: 0, marginBottom: '15px' }}>
+            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '20px', padding: 0, marginBottom: '0' }}>
               <div className="form-group">
                 <label>رقم الموظف (PIN)</label>
                 <input 
                   type="text" 
-                  className="full-width" 
-                  style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                  placeholder="1000"
                   value={editingCustomer ? (editingCustomer.admin_pin || '') : newCustomer.admin_pin}
                   onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_pin: e.target.value}) : setNewCustomer({...newCustomer, admin_pin: e.target.value})}
                   required
@@ -210,14 +222,13 @@ function SuperAdmin() {
                 <div style={{ position: 'relative' }}>
                   <input 
                     type={showPwd ? "text" : "password"}
-                    className="full-width" 
-                    style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                    placeholder="password"
                     value={editingCustomer ? (editingCustomer.admin_password || '') : newCustomer.admin_password}
                     onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_password: e.target.value}) : setNewCustomer({...newCustomer, admin_password: e.target.value})}
                     required
                   />
-                  <button type="button" className="btn-icon" style={{ position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)' }} onClick={() => setShowPwd(!showPwd)}>
-                    {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
+                  <button type="button" className="btn-icon" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent' }} onClick={() => setShowPwd(!showPwd)}>
+                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -227,14 +238,13 @@ function SuperAdmin() {
               <label>البريد الإلكتروني (اختياري)</label>
               <input 
                 type="email" 
-                className="full-width" 
-                style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid #334155', color: 'white', padding: '0.8rem', borderRadius: '8px', textAlign: 'center' }}
+                placeholder="example@mail.com"
                 value={editingCustomer ? (editingCustomer.admin_email || '') : newCustomer.email}
                 onChange={(e) => editingCustomer ? setEditingCustomer({...editingCustomer, admin_email: e.target.value}) : setNewCustomer({...newCustomer, email: e.target.value})}
               />
             </div>
-            <div className="flex-gap">
-              <button className="btn-primary full-width"><Plus size={18} /> {editingCustomer ? 'حفظ التعديلات' : 'إضافة الشركة'}</button>
+            <div className="flex-center mt-6 gap-3">
+              <button className="btn-primary full-width"><Plus size={20} /> {editingCustomer ? 'حفظ التعديلات' : 'إضافة الشركة'}</button>
               {editingCustomer && <button type="button" className="btn-secondary" onClick={() => setEditingCustomer(null)}>إلغاء</button>}
             </div>
           </form>
@@ -370,6 +380,45 @@ function SuperAdmin() {
             )}
           </tbody>
         </table>
+      </div>
+      {/* سجلات النظام */}
+      <div className="table-container mt-4" style={{ borderTop: '2px solid #334155' }}>
+        <div className="flex-between p-3" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+          <h2 style={{ fontSize: '1.2rem' }}>سجلات النظام العالمية (Global System Logs)</h2>
+          <button className="btn-icon" onClick={fetchSystemLogs}><RefreshCw size={16} /></button>
+        </div>
+        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>الوقت</th>
+                <th>الشركة</th>
+                <th>الجهاز</th>
+                <th>المستوى</th>
+                <th>الرسالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {systemLogs.length === 0 ? (
+                <tr><td colSpan="5" className="text-center p-4">لا توجد سجلات حالياً</td></tr>
+              ) : (
+                systemLogs.map(log => (
+                  <tr key={log.id}>
+                    <td className="font-mono" style={{ fontSize: '0.8rem' }}>{log.created_at}</td>
+                    <td>{log.customer_name}</td>
+                    <td><span className="badge">{log.device_sn || '—'}</span></td>
+                    <td>
+                      <span className={`status-pill ${log.level === 'ERROR' ? 'danger' : log.level === 'WARNING' ? 'warning' : 'info'}`}>
+                        {log.level}
+                      </span>
+                    </td>
+                    <td style={{ fontSize: '0.85rem' }}>{log.message}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
