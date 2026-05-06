@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
 import Logs from './pages/Logs';
+import Settings from './pages/Settings';
 import Layout from './components/Layout';
 import EmployeeLogin from './pages/EmployeeLogin';
 import EmployeeDashboard from './pages/EmployeeDashboard';
@@ -48,6 +49,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="employees" element={<Employees />} />
           <Route path="logs" element={<Logs />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </Router>

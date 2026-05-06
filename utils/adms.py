@@ -1,20 +1,30 @@
 from collections import deque
 from datetime import datetime
 import threading
-from utils.database import device_info, save_user, get_user_by_pin, add_attendance_log, get_recent_logs, get_all_users
+from utils.database import save_user, get_user_by_pin, add_attendance_log, get_recent_logs, get_all_users, update_device_info, log_system_event
 from utils.events import broadcast, log_msg
 
-command_queue = deque()
+# قاموس لتخزين قوائم الأوامر لكل جهاز بشكل منفصل (Multi-Tenant)
+command_queues = {}
 queue_lock = threading.RLock()
 
 # ===================================================
 # أوامر الجهاز
 # ===================================================
-def enqueue(cmd: str):
-    """إضافة أمر لإرساله للجهاز في الـ heartbeat التالي"""
+def enqueue(sn: str, cmd: str):
+    """إضافة أمر لإرساله لجهاز معين (SN) في الـ heartbeat التالي"""
     with queue_lock:
-        command_queue.append(cmd)
-    log_msg(f"[أمر] {cmd.strip()}")
+        if sn not in command_queues:
+            command_queues[sn] = deque()
+        command_queues[sn].append(cmd)
+    log_msg(f"[أمر -> {sn}] {cmd.strip()}")
+
+def get_next_command(sn: str):
+    """جلب الأمر التالي للجهاز"""
+    with queue_lock:
+        if sn in command_queues and command_queues[sn]:
+            return command_queues[sn].popleft()
+    return None
 
 # ===================================================
 # معالجة بيانات الجهاز
@@ -25,19 +35,20 @@ def ensure_user_from_log(customer_id, user_id: str):
     if not user:
         save_user(customer_id, user_id, f'مستخدم {user_id}', role=0, password='')
 
-def process_attlog(customer_id, body: str):
+def process_attlog(customer_id, body: str, sn=None):
     """تحليل بيانات ATTLOG القادمة من الجهاز"""
     new_records = []
-    for line in body.strip().split('\n'):
+    lines = body.strip().split('\n')
+    all_success = True
+    
+    for line in lines:
         line = line.strip('\r\n ')
-        if not line:
-            continue
-        # تجاهل سطور الإعداد
-        if '=' in line and '\t' not in line and len(line.split()) < 3:
-            continue
+        if not line: continue
+        if '=' in line and '\t' not in line: continue 
+        
         parts = line.split()
-        if len(parts) < 3:
-            continue
+        if len(parts) < 3: continue
+        
         try:
             uid       = parts[0]
             timestamp = f"{parts[1]} {parts[2]}"
@@ -55,23 +66,24 @@ def process_attlog(customer_id, body: str):
                 new_records.append(rec)
 
             ensure_user_from_log(customer_id, uid)
-            log_msg(f"[ATTLOG - Tenant {customer_id}] {uid} - {timestamp}")
-
         except Exception as e:
-            log_msg(f"[خطأ] تحليل ATTLOG: {e}")
+            log_system_event(customer_id, 'ERROR', f"تحليل سجل حضور: {e}", sn)
+            all_success = False
 
     if new_records:
+        log_system_event(customer_id, 'INFO', f"تم استقبال وتأكيد {len(new_records)} سجل من {sn}", sn)
         for rec in new_records:
-            # يمكن تعديل هذا ليتم بثه فقط للمستخدمين التابعين لنفس الـ customer_id
             broadcast('new_log', rec)
+        update_device_info(sn, log_count=len(lines))
+    
+    return all_success
 
-def process_users(customer_id, body: str):
+def process_users(customer_id, body: str, sn=None):
     """تحليل بيانات USER القادمة من الجهاز"""
     count = 0
     for line in body.strip().split('\n'):
         line = line.strip('\r\n ')
-        if not line.startswith('USER'):
-            continue
+        if not line.startswith('USER'): continue
         try:
             fields = {}
             sep = '\t' if '\t' in line else ' '
@@ -79,9 +91,9 @@ def process_users(customer_id, body: str):
                 if '=' in part:
                     k, _, v = part.partition('=')
                     fields[k.strip()] = v.strip()
+            
             pin = fields.get('PIN', '')
-            if not pin:
-                continue
+            if not pin: continue
             
             name = fields.get('Name', f'مستخدم {pin}')
             role = int(fields.get('Pri', 0) or 0)
@@ -92,10 +104,11 @@ def process_users(customer_id, body: str):
             
             save_user(customer_id, pin, name, role, pwd, hourly_rate)
             count += 1
-            log_msg(f"[مستخدم - Tenant {customer_id}] PIN={pin} Name={name}")
         except Exception as e:
-            log_msg(f"[خطأ] تحليل USER: {e}")
+            log_system_event(customer_id, 'ERROR', f"تحليل بيانات مستخدم: {e}", sn)
 
     if count:
+        log_system_event(customer_id, 'INFO', f"تم تحديث {count} مستخدم من الجهاز {sn}", sn)
         all_users = get_all_users(customer_id)
         broadcast('users_updated', {'count': len(all_users), 'customer_id': customer_id})
+        update_device_info(sn, user_count=count)

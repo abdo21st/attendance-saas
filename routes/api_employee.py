@@ -85,18 +85,18 @@ def api_employee_dashboard():
     if current_in is not None:
         shifts.append({'in': current_in, 'out': None, 'hours': 0.0})
         
-    total_hours = sum(s['hours'] for s in shifts if s['in'].date() >= start_dt.date())
-    rate = float(session.get('emp_hourly_rate', 0.0))
-    base_salary = round(total_hours * rate, 2)
+    from utils.payroll import calculate_salary
+    from utils.database import get_setting
     
-    premium_bonus = 0.0
+    rules = get_setting(customer_id, 'rules', [])
     extra_tasks = get_extra_tasks_for_user(customer_id, pin, start_date, end_date)
-    total_extras = sum(float(t['task_value']) for t in extra_tasks) + premium_bonus
-    total_salary = round(base_salary + total_extras, 2)
-
+    rate = float(session.get('emp_hourly_rate', 0.0))
+    
+    payroll = calculate_salary(customer_id, pin, user_logs, extra_tasks, rules, rate)
+    
     # تجهيز سجلات الأيام
     formatted_logs = []
-    for s in shifts:
+    for s in payroll['shifts']:
         if s['in'].date() >= start_dt.date():
             formatted_logs.append({
                 'date': s['in'].strftime('%Y-%m-%d'),
@@ -111,10 +111,10 @@ def api_employee_dashboard():
             'name': session['emp_name'],
             'pin': pin,
             'summary': {
-                'total_hours': round(total_hours, 2),
-                'base_salary': base_salary,
-                'total_extras': total_extras,
-                'total_salary': total_salary,
+                'total_hours': payroll['total_hours'],
+                'base_salary': payroll['base_salary'],
+                'total_extras': payroll['total_extras'] + payroll['premium_bonus'],
+                'total_salary': payroll['total_salary'],
                 'month': now.strftime('%B %Y')
             },
             'logs': formatted_logs

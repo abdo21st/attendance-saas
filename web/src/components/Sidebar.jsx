@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Clock, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, Settings, LogOut } from 'lucide-react';
 
 function Sidebar({ setAuth }) {
   const navigate = useNavigate();
@@ -30,6 +30,11 @@ function Sidebar({ setAuth }) {
         <NavLink to="/logs" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
           <Clock size={20} />
           <span>سجلات الحضور</span>
+        </NavLink>
+
+        <NavLink to="/settings" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
+          <Settings size={20} />
+          <span>إعدادات الرواتب</span>
         </NavLink>
       </nav>
       
