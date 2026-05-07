@@ -10,16 +10,15 @@ api_device_bp = Blueprint('api_device', __name__)
 @login_required
 def api_status():
     customer_id = session.get('customer_id', 1)
+    print(f"DEBUG: api_status | session customer_id: {customer_id}")
     
     with get_db_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
             # جلب آخر جهاز تم استخدامه لهذه الشركة
-            cursor.execute('''
-                SELECT * FROM Devices 
-                WHERE customer_id = %s 
-                ORDER BY last_seen DESC LIMIT 1
-            ''', (customer_id,))
+            query = "SELECT * FROM Devices WHERE customer_id = %s ORDER BY last_seen DESC LIMIT 1"
+            cursor.execute(query, (customer_id,))
             device = cursor.fetchone()
+            print(f"DEBUG: api_status | Found device: {device['sn'] if device else 'None'}")
 
     if not device:
         return jsonify({
@@ -57,15 +56,14 @@ def api_status():
 @login_required
 def api_device_list():
     customer_id = session.get('customer_id', 1)
+    print(f"DEBUG: api_device_list | session customer_id: {customer_id} (type: {type(customer_id)})")
     
     with get_db_conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-            cursor.execute('''
-                SELECT * FROM Devices 
-                WHERE customer_id = %s 
-                ORDER BY last_seen DESC NULLS LAST
-            ''', (customer_id,))
+            query = "SELECT * FROM Devices WHERE customer_id = %s ORDER BY last_seen DESC NULLS LAST"
+            cursor.execute(query, (customer_id,))
             devices = cursor.fetchall()
+            print(f"DEBUG: api_device_list | Found {len(devices)} devices")
 
     from datetime import datetime
     result = []
