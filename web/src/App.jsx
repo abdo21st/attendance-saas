@@ -12,7 +12,16 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import SuperAdmin from './pages/SuperAdmin';
 
 function App() {
-  return <div style={{ padding: '50px', textAlign: 'center', fontSize: '24px', color: 'white' }}>Hello World - Attendance System is mounting!</div>;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login setAuth={setIsAuthenticated} />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
