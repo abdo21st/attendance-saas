@@ -39,81 +39,76 @@ function Dashboard() {
 
   return (
     <div className="page-container">
-      <header className="page-header">
+      <header className="page-header mb-4">
         <div className="flex-between">
           <div>
-            <h1>نظرة عامة على النظام</h1>
-            <p>إليك ملخص نشاط الحضور والانصراف لهذا اليوم</p>
+            <h1>لوحة القيادة</h1>
+            <p>مرحباً بك مجدداً. إليك ملخص نشاط النظام اليوم.</p>
           </div>
-          <div className="badge" style={{ padding: '8px 16px', fontSize: '1rem' }}>
-             <Activity size={18} inline /> مباشر
+          <div className="status-pill info pulse">
+            <Activity size={16} style={{ marginLeft: '8px' }} /> مباشر الآن
           </div>
         </div>
       </header>
 
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon bg-blue">
+        <div className="stat-card glass-card">
+          <div className="icon-box" style={{ color: 'var(--primary)' }}>
             <Users size={32} />
           </div>
           <div className="stat-info">
-            <h3>إجمالي الموظفين</h3>
-            <p className="stat-value">{stats.users}</p>
-            <span className="text-success" style={{ fontSize: '0.8rem' }}><TrendingUp size={12} inline /> موظف نشط</span>
+            <div className="stat-label">الموظفون</div>
+            <div className="stat-value">{stats.users}</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon bg-green">
+        <div className="stat-card glass-card">
+          <div className="icon-box" style={{ color: var(--success) }}>
             <UserCheck size={32} />
           </div>
           <div className="stat-info">
-            <h3>سجل اليوم</h3>
-            <p className="stat-value">{stats.activeToday}</p>
-            <span className="text-muted" style={{ fontSize: '0.8rem' }}>بصمة تم تسجيلها اليوم</span>
+            <div className="stat-label">الحضور اليوم</div>
+            <div className="stat-value">{stats.activeToday}</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon bg-purple">
+        <div className="stat-card glass-card">
+          <div className="icon-box" style={{ color: 'var(--warning)' }}>
             <Clock size={32} />
           </div>
           <div className="stat-info">
-            <h3>إجمالي السجلات</h3>
-            <p className="stat-value">{stats.logs}</p>
-            <span className="text-muted" style={{ fontSize: '0.8rem' }}>منذ بدء العمل</span>
+            <div className="stat-label">إجمالي السجلات</div>
+            <div className="stat-value">{stats.logs}</div>
           </div>
         </div>
       </div>
 
-      <div className="recent-activity">
-        <h2 className="mb-4">أحدث عمليات البصمة</h2>
-        <div className="table-container">
+      <div className="glass-card">
+        <h2 className="mb-4">أحدث النشاطات</h2>
+        <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>
                 <th>الموظف</th>
-                <th>رقم (PIN)</th>
+                <th>المعرف (PIN)</th>
                 <th>التوقيت</th>
                 <th>الحالة</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="4" className="text-center p-5">جاري التحميل...</td></tr>
+                <tr><td colSpan="4" className="text-center" style={{ padding: '4rem' }}><RefreshCw className="spin" /> جاري التحميل...</td></tr>
               ) : recentLogs.length === 0 ? (
-                <tr>
-                  <td colSpan="4" className="text-center p-5 text-muted">لا توجد عمليات بصمة مسجلة حالياً</td>
-                </tr>
+                <tr><td colSpan="4" className="text-center" style={{ padding: '4rem' }}>لا توجد سجلات حالياً</td></tr>
               ) : (
                 recentLogs.map((log, index) => (
                   <tr key={index}>
-                    <td><strong>{log.UserName}</strong></td>
-                    <td><span className="badge">{log.UserId}</span></td>
-                    <td className="text-blue font-mono">{log.Timestamp}</td>
+                    <td><div style={{ fontWeight: 700 }}>{log.UserName}</div></td>
+                    <td><span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>{log.UserId}</span></td>
+                    <td className="font-mono text-dim">{log.Timestamp}</td>
                     <td>
                       <span className={`status-pill ${log.VerifyMethod === 15 ? 'success' : 'info'}`}>
-                        {log.VerifyMethod === 0 ? 'كلمة مرور' : log.VerifyMethod === 1 ? 'بصمة إصبع' : log.VerifyMethod === 15 ? 'بصمة وجه' : 'تحقق آلي'}
+                        {log.VerifyMethod === 15 ? 'بصمة وجه' : 'تحقق آلي'}
                       </span>
                     </td>
                   </tr>

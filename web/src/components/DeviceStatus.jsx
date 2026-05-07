@@ -26,7 +26,7 @@ function DeviceStatus() {
 
   useEffect(() => {
     fetchStatus();
-    const interval = setInterval(fetchStatus, 30000); // تحديث كل 30 ثانية
+    const interval = setInterval(fetchStatus, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -35,38 +35,18 @@ function DeviceStatus() {
   const isConnected = status?.connected;
 
   return (
-    <div className="device-status-badge shadow-glass">
-      <div className="status-indicator">
-        <div className={`status-dot ${isConnected ? 'online' : 'offline'}`}></div>
-        <div className="status-main">
-          <div className="status-label">
-            {isConnected ? 'الجهاز متصل' : 'الجهاز غير متصل'}
-          </div>
-          <div className="status-time">
-            تحديث: {lastCheck.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
-          </div>
+    <div className="device-status-badge glass shadow-lg">
+      <div className={`status-dot ${isConnected ? 'online' : 'offline'}`} style={{ color: isConnected ? 'var(--success)' : 'var(--danger)' }}></div>
+      <div className="status-main">
+        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>
+          {isConnected ? 'الجهاز متصل' : 'الجهاز غير متصل'}
         </div>
-        <div className="status-icon-box">
-          {isConnected ? <Wifi size={18} className="text-success" /> : <WifiOff size={18} className="text-danger" />}
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          تحديث: {lastCheck.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
-
-      {/* حوام (Tooltip) يظهر عند التمرير أو في نافذة منبثقة صغيرة */}
-      <div className="status-details">
-        <div className="details-row">
-          <Cpu size={14} />
-          <span>الموديل: {status?.model || '—'}</span>
-        </div>
-        <div className="details-row">
-          <Info size={14} />
-          <span>SN: {status?.sn || '—'}</span>
-        </div>
-        {status?.pending_cmds > 0 && (
-          <div className="details-row text-warning">
-            <RefreshCw size={14} className="spin" />
-            <span>أوامر معلقة: {status.pending_cmds}</span>
-          </div>
-        )}
+      <div className="flex-center" style={{ marginLeft: 'auto', paddingLeft: '0.5rem', borderLeft: '1px solid var(--glass-border)' }}>
+         {isConnected ? <Wifi size={18} className="text-success" /> : <WifiOff size={18} className="text-danger" />}
       </div>
     </div>
   );

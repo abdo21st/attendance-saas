@@ -10,43 +10,42 @@ function Sidebar({ setAuth }) {
     navigate('/login');
   };
 
+  const navItems = [
+    { to: "/", icon: <LayoutDashboard size={22} />, label: "لوحة التحكم", end: true },
+    { to: "/employees", icon: <Users size={22} />, label: "الموظفون" },
+    { to: "/logs", icon: <Clock size={22} />, label: "سجلات الحضور" },
+    { to: "/device-test", icon: <Settings size={22} />, label: "اختبار الأجهزة" },
+    { to: "/settings", icon: <Settings size={22} />, label: "الإعدادات" },
+  ];
+
   return (
-    <aside className="sidebar">
+    <aside className="sidebar glass">
       <div className="sidebar-header">
-        <h2 className="logo">ZKTeco Panel</h2>
+        <h2 className="logo-text">ZKTeco Cloud</h2>
+        <p className="text-muted" style={{ fontSize: '0.8rem' }}>إدارة الحضور الذكية</p>
       </div>
       
       <nav className="sidebar-nav">
-        <NavLink to="/" className={({isActive}) => isActive ? "nav-link active" : "nav-link"} end>
-          <LayoutDashboard size={20} />
-          <span>لوحة القيادة</span>
-        </NavLink>
-        
-        <NavLink to="/employees" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <Users size={20} />
-          <span>إدارة الموظفين</span>
-        </NavLink>
-        
-        <NavLink to="/logs" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <Clock size={20} />
-          <span>سجلات الحضور</span>
-        </NavLink>
-
-        <NavLink to="/settings" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <Settings size={20} />
-          <span>إعدادات الرواتب</span>
-        </NavLink>
-
-        <NavLink to="/device-test" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
-          <Wifi size={20} />
-          <span>اختبار الاتصال</span>
-        </NavLink>
+        <ul className="nav-list">
+          {navItems.map((item) => (
+            <li key={item.to}>
+              <NavLink 
+                to={item.to} 
+                className={({isActive}) => isActive ? "nav-link active" : "nav-link"} 
+                end={item.end}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
       </nav>
-      
-      <div className="sidebar-footer">
-        <button onClick={handleLogout} className="logout-btn">
-          <LogOut size={20} />
-          <span>تسجيل الخروج</span>
+
+      <div style={{ marginTop: 'auto', padding: '0 0.5rem' }}>
+        <button onClick={handleLogout} className="nav-link full-width" style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
+          <LogOut size={22} className="text-red" />
+          <span className="text-red">تسجيل الخروج</span>
         </button>
       </div>
     </aside>

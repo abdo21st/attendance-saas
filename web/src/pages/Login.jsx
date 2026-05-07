@@ -25,76 +25,76 @@ function Login({ setAuth }) {
         setAuth(true);
         navigate('/');
       } else {
-        setError(data.error || 'فشل تسجيل الدخول');
+        setError(data.error || 'بيانات الدخول غير صحيحة');
       }
     } catch (err) {
-      setError('لا يمكن الاتصال بالخادم. تأكد من تشغيل السيرفر.');
+      setError('تعذر الاتصال بالسيرفر. يرجى المحاولة لاحقاً.');
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="logo-badge">SaaS</div>
-          <h2>ZKTeco Attendance</h2>
-          <p>بوابة إدارة الحضور والانصراف السحابية</p>
+    <div className="flex-center" style={{ minHeight: '100vh', padding: '1rem' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '3rem' }}>
+        <div className="sidebar-header" style={{ marginBottom: '2.5rem' }}>
+          <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: '12px', background: 'var(--primary-glow)', marginBottom: '1rem' }}>
+            <Lock size={32} className="text-vibrant" />
+          </div>
+          <h1 style={{ fontSize: '2rem' }}>مرحباً بك</h1>
+          <p>سجل دخولك لإدارة نظام الحضور</p>
         </div>
         
-        {error && <div className="alert-error">{error}</div>}
+        {error && (
+          <div className="badge-danger" style={{ padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'center' }}>
+            {error}
+          </div>
+        )}
         
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="form-group">
-            <label>رقم الشركة (Company ID)</label>
-            <div className="input-wrapper">
-              <span className="input-icon-text">#</span>
-              <input 
-                type="number" 
-                value={companyId}
-                onChange={(e) => setCompanyId(e.target.value)}
-                placeholder="أدخل رقم الشركة"
-                required
-              />
-            </div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--text-dim)' }}>رقم الشركة</label>
+            <input 
+              className="input-field"
+              type="number" 
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              placeholder="1"
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>رقم الموظف (PIN)</label>
-            <div className="input-wrapper">
-              <User className="input-icon" size={20} />
-              <input 
-                type="text" 
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                placeholder="أدخل رقمك الوظيفي"
-                required
-              />
-            </div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--text-dim)' }}>رقم الموظف (PIN)</label>
+            <input 
+              className="input-field"
+              type="text" 
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="مثال: 101"
+              required
+            />
           </div>
           
-          <div className="form-group">
-            <label>كلمة المرور</label>
-            <div className="input-wrapper">
-              <Lock className="input-icon" size={20} />
-              <input 
-                type={showPassword ? "text" : "password"} 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="أدخل كلمة المرور"
-              />
-              <button 
-                type="button" 
-                className="btn-icon" 
-                style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none' }}
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={20} className="text-muted" /> : <Eye size={20} className="text-muted" />}
-              </button>
-            </div>
+          <div className="form-group" style={{ position: 'relative' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--text-dim)' }}>كلمة المرور</label>
+            <input 
+              className="input-field"
+              type={showPassword ? "text" : "password"} 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+            <button 
+              type="button" 
+              className="btn-icon" 
+              style={{ position: 'absolute', left: '0.8rem', bottom: '0.6rem', background: 'transparent', border: 'none' }}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
           
-          <button type="submit" className="btn-primary full-width">
-            دخول للنظام
+          <button type="submit" className="btn-primary full-width" style={{ marginTop: '1rem' }}>
+            دخول النظام
           </button>
         </form>
       </div>

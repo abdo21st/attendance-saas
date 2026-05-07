@@ -5,10 +5,12 @@ import DeviceStatus from './DeviceStatus';
 function Layout({ setAuth }) {
   return (
     <div className="layout-container">
-      <DeviceStatus />
       <Sidebar setAuth={setAuth} />
       <main className="main-content">
-        <Outlet />
+        <DeviceStatus />
+        <div className="page-container">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

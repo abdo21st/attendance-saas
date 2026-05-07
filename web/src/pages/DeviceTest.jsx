@@ -15,8 +15,6 @@ function DeviceTest() {
       const data = await res.json();
       if (data.success) {
         setDevices(data.devices || []);
-      } else {
-        console.error('API Error:', data.error);
       }
     } catch (err) {
       console.error('Fetch error:', err.message);
@@ -28,73 +26,76 @@ function DeviceTest() {
 
   useEffect(() => {
     fetchDevices();
-    const interval = setInterval(fetchDevices, 10000); // تحديث كل 10 ثواني لصفحة الاختبار
+    const interval = setInterval(fetchDevices, 10000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="page-container">
-      <header className="page-header flex-between">
-        <div>
-          <h1>اختبار اتصال الأجهزة</h1>
-          <p>تأكد من حالة اتصال أجهزة البصمة المربوطة بحسابك</p>
+      <header className="page-header mb-4">
+        <div className="flex-between">
+          <div>
+            <h1>مركز تشخيص الأجهزة</h1>
+            <p>مراقبة حالة اتصال أجهزة البصمة والبيانات الحيوية بشكل فوري</p>
+          </div>
+          <button 
+            onClick={fetchDevices} 
+            className="btn-primary"
+          >
+            <RefreshCw size={20} className={refreshing ? 'spin' : ''} /> تحديث البيانات
+          </button>
         </div>
-        <button 
-          onClick={fetchDevices} 
-          className={`btn-icon ${refreshing ? 'spin' : ''}`}
-          title="تحديث الحالة الآن"
-        >
-          <RefreshCw size={24} />
-        </button>
       </header>
 
       {loading ? (
-        <div className="flex-center mt-4">
-          <RefreshCw className="spin text-blue" size={40} />
+        <div className="flex-center" style={{ height: '300px' }}>
+          <RefreshCw className="spin text-blue" size={48} />
         </div>
       ) : devices.length === 0 ? (
-        <div className="stat-card flex-center mt-4">
-          <p>لا توجد أجهزة مسجلة في حسابك حالياً.</p>
+        <div className="glass-card flex-center" style={{ height: '200px' }}>
+          <p>لا توجد أجهزة مسجلة في هذا الحساب حالياً.</p>
         </div>
       ) : (
         <div className="stats-grid">
           {devices.map((dev) => (
-            <div key={dev.sn} className={`stat-card device-card ${dev.connected ? 'border-success' : 'border-danger'}`}>
-              <div className={`stat-icon ${dev.connected ? 'bg-green' : 'bg-red'}`}>
-                {dev.connected ? <Wifi size={32} /> : <WifiOff size={32} />}
-              </div>
-              
-              <div className="stat-info full-width">
-                <div className="flex-between">
-                  <h3>{dev.model}</h3>
-                  <span className={`badge ${dev.connected ? 'text-green' : 'text-red'}`}>
-                    {dev.connected ? 'متصل الآن' : 'غير متصل'}
+            <div key={dev.sn} className="glass-card" style={{ padding: '2rem' }}>
+              <div className="flex-between mb-4">
+                <div className="icon-box" style={{ color: dev.connected ? 'var(--success)' : 'var(--danger)', width: '80px', height: '80px' }}>
+                  {dev.connected ? <Wifi size={40} /> : <WifiOff size={40} />}
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <span className={`status-pill ${dev.connected ? 'success' : 'danger'}`}>
+                    {dev.connected ? 'متصل' : 'غير متصل'}
                   </span>
                 </div>
-                
-                <div className="stat-value font-mono" style={{ fontSize: '1.2rem', marginTop: '0.5rem' }}>
-                  {dev.sn}
-                </div>
+              </div>
+              
+              <div className="mb-4">
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>{dev.model}</h2>
+                <code className="font-mono text-muted" style={{ fontSize: '1rem' }}>{dev.sn}</code>
+              </div>
 
-                <div className="device-meta-grid mt-4">
-                  <div className="meta-item">
-                    <Clock size={14} />
-                    <span>آخر ظهور: {dev.last_seen}</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1.5rem' }}>
+                <div className="flex-center gap-1" style={{ justifyContent: 'flex-start' }}>
+                  <UserCheck size={18} className="text-dim" />
+                  <div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>الموظفون</div>
+                    <div style={{ fontWeight: 700 }}>{dev.user_count}</div>
                   </div>
-                  <div className="meta-item">
-                    <UserCheck size={14} />
-                    <span>الموظفون: {dev.user_count}</span>
+                </div>
+                <div className="flex-center gap-1" style={{ justifyContent: 'flex-start' }}>
+                  <Database size={18} className="text-dim" />
+                  <div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>السجلات</div>
+                    <div style={{ fontWeight: 700 }}>{dev.log_count}</div>
                   </div>
-                  <div className="meta-item">
-                    <Database size={14} />
-                    <span>السجلات: {dev.log_count}</span>
-                  </div>
-                  {dev.pending_cmds > 0 && (
-                    <div className="meta-item text-warning">
-                      <RefreshCw size={14} className="spin" />
-                      <span>أوامر معلقة: {dev.pending_cmds}</span>
-                    </div>
-                  )}
+                </div>
+              </div>
+              
+              <div className="mt-4 flex-between" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <div className="flex-center gap-1">
+                  <Clock size={14} />
+                  <span>آخر ظهور: {dev.last_seen}</span>
                 </div>
               </div>
             </div>
@@ -102,12 +103,12 @@ function DeviceTest() {
         </div>
       )}
 
-      <div className="mt-4 alert-info" style={{ textAlign: 'right' }}>
-        <h3>تعليمات الربط:</h3>
-        <ul style={{ marginRight: '1.5rem', marginTop: '0.5rem' }}>
-          <li>تأكد من إدخال السيرفر <code>attendance.ordermt.ly</code> في إعدادات ADMS بالجهاز.</li>
-          <li>تأكد من استخدام المنفذ <code>80</code>.</li>
-          <li>إذا كان الجهاز يظهر "غير متصل"، يرجى التحقق من اتصال الإنترنت في الصيدلية.</li>
+      <div className="glass-card mt-4" style={{ background: 'rgba(59, 130, 246, 0.05)', borderColor: 'rgba(59, 130, 246, 0.2)' }}>
+        <h3 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>إرشادات الاتصال السريع</h3>
+        <ul style={{ paddingRight: '1.5rem', color: 'var(--text-dim)', fontSize: '0.95rem' }}>
+          <li>عنوان الخادم: <code style={{ color: 'white' }}>attendance.ordermt.ly</code></li>
+          <li>المنفذ الافتراضي: <code style={{ color: 'white' }}>80</code></li>
+          <li>يتم تحديث البيانات تلقائياً كل 10 ثواني في هذه الصفحة.</li>
         </ul>
       </div>
     </div>
