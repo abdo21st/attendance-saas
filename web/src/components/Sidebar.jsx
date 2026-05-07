@@ -36,6 +36,11 @@ function Sidebar({ setAuth }) {
           <Settings size={20} />
           <span>إعدادات الرواتب</span>
         </NavLink>
+
+        <NavLink to="/device-test" className={({isActive}) => isActive ? "nav-link active" : "nav-link"}>
+          <Wifi size={20} />
+          <span>اختبار الاتصال</span>
+        </NavLink>
       </nav>
       
       <div className="sidebar-footer">

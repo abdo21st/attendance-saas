@@ -100,7 +100,7 @@ def add_device():
 @api_superadmin_bp.route('/logs', methods=['GET'])
 def get_system_logs():
     token = request.headers.get('X-Super-Admin-Token')
-    if token != ADMIN_TOKEN:
+    if token != SUPER_ADMIN_TOKEN:
         return jsonify({'error': 'Unauthorized'}), 401
     
     from utils.database import get_db_conn

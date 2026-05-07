@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
 import Logs from './pages/Logs';
 import Settings from './pages/Settings';
+import DeviceTest from './pages/DeviceTest';
 import Layout from './components/Layout';
 import EmployeeLogin from './pages/EmployeeLogin';
 import EmployeeDashboard from './pages/EmployeeDashboard';
@@ -50,6 +51,7 @@ function App() {
           <Route path="employees" element={<Employees />} />
           <Route path="logs" element={<Logs />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="device-test" element={<DeviceTest />} />
         </Route>
       </Routes>
     </Router>
