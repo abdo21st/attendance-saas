@@ -10,12 +10,16 @@ function DeviceTest() {
     setRefreshing(true);
     try {
       const res = await fetch('/api/device/list');
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      
       const data = await res.json();
       if (data.success) {
-        setDevices(data.devices);
+        setDevices(data.devices || []);
+      } else {
+        console.error('API Error:', data.error);
       }
     } catch (err) {
-      console.error('Failed to fetch devices:', err);
+      console.error('Fetch error:', err.message);
     } finally {
       setLoading(false);
       setRefreshing(false);

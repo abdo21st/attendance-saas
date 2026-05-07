@@ -8,16 +8,19 @@ function DeviceStatus() {
 
   const fetchStatus = async () => {
     try {
+      setLoading(true);
       const res = await fetch('/api/device/status');
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      
       const data = await res.json();
       if (data.success) {
         setStatus(data);
+        setLastCheck(new Date());
       }
     } catch (err) {
-      console.error('Failed to fetch device status:', err);
+      console.error('DeviceStatus error:', err);
     } finally {
       setLoading(false);
-      setLastCheck(new Date());
     }
   };
 
