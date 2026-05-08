@@ -110,7 +110,7 @@ def get_system_logs():
         with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
             cursor.execute('''
                 SELECT l.id, l.customer_id, c.name as customer_name, l.level, l.message, 
-                       l.device_sn, to_char(l.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at
+                       l.sn, to_char(l.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at
                 FROM SystemLogs l
                 LEFT JOIN Customers c ON l.customer_id = c.id
                 ORDER BY l.created_at DESC LIMIT 500
