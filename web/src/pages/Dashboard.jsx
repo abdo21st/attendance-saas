@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, UserCheck, Clock, Activity, TrendingUp } from 'lucide-react';
+import { Users, UserCheck, Clock, Activity, TrendingUp, RefreshCw } from 'lucide-react';
 
 function Dashboard() {
   const [stats, setStats] = useState({ users: 0, logs: 0, activeToday: 0 });
@@ -63,7 +63,7 @@ function Dashboard() {
         </div>
 
         <div className="stat-card glass-card">
-          <div className="icon-box" style={{ color: var(--success) }}>
+          <div className="icon-box" style={{ color: 'var(--success)' }}>
             <UserCheck size={32} />
           </div>
           <div className="stat-info">
