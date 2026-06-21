@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Clock, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, Settings, LogOut, BookOpen } from 'lucide-react';
 
 function Sidebar({ setAuth }) {
   const navigate = useNavigate();
@@ -14,7 +14,6 @@ function Sidebar({ setAuth }) {
     { to: "/", icon: <LayoutDashboard size={22} />, label: "لوحة التحكم", end: true },
     { to: "/employees", icon: <Users size={22} />, label: "الموظفون" },
     { to: "/logs", icon: <Clock size={22} />, label: "سجلات الحضور" },
-    { to: "/device-test", icon: <Settings size={22} />, label: "اختبار الأجهزة" },
     { to: "/settings", icon: <Settings size={22} />, label: "الإعدادات" },
   ];
 

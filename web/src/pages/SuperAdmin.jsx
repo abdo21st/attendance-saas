@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Building, Cpu, Plus, Shield, LogOut, List, Edit2, Calendar, Phone, User, Lock, Hash, Eye, EyeOff, RefreshCw } from 'lucide-react';
 
 function SuperAdmin() {
-  const [token, setToken] = useState('AdminSecret2024');
+  const [token, setToken] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [devices, setDevices] = useState([]);

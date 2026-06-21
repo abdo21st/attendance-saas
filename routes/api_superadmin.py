@@ -6,7 +6,9 @@ import psycopg2.extras
 
 api_superadmin_bp = Blueprint('api_superadmin', __name__)
 
-SUPER_ADMIN_TOKEN = os.environ.get('SUPER_ADMIN_TOKEN', 'AdminSecret2024')
+SUPER_ADMIN_TOKEN = os.environ.get('SUPER_ADMIN_TOKEN')
+if not SUPER_ADMIN_TOKEN:
+    raise RuntimeError("SUPER_ADMIN_TOKEN must be set in environment variables")
 
 def check_token():
     token = request.headers.get('X-Super-Admin-Token')

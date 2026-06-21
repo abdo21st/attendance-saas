@@ -14,7 +14,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 SERVER = {
     "ip":       "102.203.201.52",
     "user":     "root",
-    "password": "Aa@12341312",
+    # مصادقة SSH بالمفتاح العام فقط (تم إزالة كلمة المرور الثابتة)
     "ssh_key":  r"C:\Users\phabd\.ssh\id_ed25519",
     "name":     "ordermt-ly",
     "provider": "LibyanSpider",

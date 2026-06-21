@@ -5,7 +5,7 @@ if sys.stdout is not None:
     except AttributeError:
         pass
 
-from flask import Flask, Response, request, stream_with_context, session, render_template, jsonify, redirect, url_for
+from flask import Flask, Response, request, stream_with_context, session, jsonify, redirect, url_for
 from flask_cors import CORS
 from datetime import datetime
 import json
@@ -47,7 +47,10 @@ app.register_blueprint(api_employee_bp, url_prefix='/api/employee')
 app.register_blueprint(api_superadmin_bp, url_prefix='/api/superadmin')
 
 # مفتاح سري للجلسات (يفضل تغييره من متغيرات البيئة في الإنتاج)
-app.secret_key = os.environ.get('SECRET_KEY', '7fb8c9d0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0')
+app.secret_key = os.environ.get('SECRET_KEY')
+if not app.secret_key:
+    print("WARNING: SECRET_KEY environment variable not set. Using insecure default for development only.", flush=True)
+    app.secret_key = 'dev-insecure-key-do-not-use-in-production'
 
 # ===================================================
 # مسارات ADMS الأساسية - Multi-Tenant

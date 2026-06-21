@@ -9,11 +9,11 @@ from contextlib import contextmanager
 # ===================================================
 # إعدادات الاتصال بقاعدة بيانات PostgreSQL
 # ===================================================
-DB_HOST = os.environ.get('DB_HOST', '102.203.201.52')
+DB_HOST = os.environ.get('DB_HOST', 'localhost')
 DB_PORT = os.environ.get('DB_PORT', '5432')
 DB_NAME = os.environ.get('DB_NAME', 'attendance_db')
-DB_USER = os.environ.get('DB_USER', 'n8n')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'n8nDbPass2024')
+DB_USER = os.environ.get('DB_USER', 'postgres')
+DB_PASSWORD = os.environ['DB_PASSWORD']  # يجب تعيينه في متغيرات البيئة
 
 # كائن معلومات الجهاز الافتراضي (سيتم تحديثه برمجياً)
 device_info = {

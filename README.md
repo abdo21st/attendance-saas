@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZKTeco Attendance Management System
 
-## Getting Started
+نظام إدارة حضور وانصراف متعدد الجهات (SaaS) يتكامل مع أجهزة البصمة ZKTeco.
 
-First, run the development server:
+## المكونات
+
+- **Backend**: Flask 3.x API + PostgreSQL
+- **Frontend**: React 19 + Vite 8 + Ant Design
+- **Desktop App**: CustomTkinter GUI (Windows)
+- **Device Protocol**: ZKTeco ADMS عبر HTTP
+
+## متطلبات التشغيل
+
+- Python 3.12+
+- PostgreSQL
+- Node.js 20+ (للبناء)
+
+## الإعداد والتشغيل
+
+### 1. متغيرات البيئة
+
+انسخ `.env.example` إلى `.env` وعبّئ القيم المطلوبة:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+المتغيرات المطلوبة:
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` - اتصال PostgreSQL
+- `SECRET_KEY` - مفتاح تشفير Flask (يجب أن يكون قيمة عشوائية قوية)
+- `SUPER_ADMIN_TOKEN` - توكن الدخول للوحة التحكم المركزية
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. تشغيل Backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pip install -r requirements.txt
+python app.py
+```
 
-## Learn More
+### 3. بناء Frontend
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+cd web
+npm install
+npm run dev    # للتطوير
+npm run build  # للإنتاج
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. النشر عبر Docker
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+docker build -t zkteco-attendance .
+docker run -p 80:80 -e DB_HOST=... -e DB_PASSWORD=... zkteco-attendance
+```
 
-## Deploy on Vercel
+## النشر على السيرفر
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+النظام يُنشر عبر Docker + Nginx + Gunicorn على منصة Coolify.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+جميع الحقوق محفوظة.
