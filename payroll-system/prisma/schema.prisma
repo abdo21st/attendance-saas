@@ -1,0 +1,435 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  admin
+  manager
+  employee
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+  leave
+}
+
+enum PayrollStatus {
+  draft
+  approved
+  paid
+}
+
+enum TaskReportStatus {
+  draft
+  submitted
+  reviewed
+  approved
+  rejected
+}
+
+enum TaskSummaryStatus {
+  draft
+  finalized
+}
+
+enum ImportStatus {
+  processing
+  completed
+  failed
+}
+
+enum DeviceType {
+  zkteco
+  hikvision
+}
+
+enum ImportType {
+  file
+  direct
+}
+
+model User {
+  id            String     @id @default(uuid())
+  username      String     @unique
+  passwordHash  String
+  fullName      String
+  role          UserRole   @default(employee)
+  departmentId  String?
+  department    Department? @relation("DepartmentUsers", fields: [departmentId], references: [id])
+  isActive      Boolean     @default(true)
+  employee      Employee?
+  managesDepartment Department? @relation("DepartmentManager")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime   @updatedAt
+  reviewedTaskReports TaskReport[]
+  importedBatches     ImportBatch[]
+  promotedBy          Promotion[]
+  createdPayrolls     MonthlyPayroll[] @relation("createdPayrolls")
+  approvedPayrolls    MonthlyPayroll[] @relation("approvedPayrolls")
+  auditLogs           AuditLog[]
+  notifications       Notification[]
+  finalizedSummaries  MonthlyTaskSummary[]
+  reportTemplates     ReportTemplate[]
+  @@map("users")
+}
+
+model Department {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  managerId   String?   @unique
+  manager     User?       @relation("DepartmentManager", fields: [managerId], references: [id])
+  employees   Employee[]
+  users       User[]       @relation("DepartmentUsers")
+  createdAt   DateTime   @default(now())
+  @@map("departments")
+}
+
+model Employee {
+  id               String       @id @default(uuid())
+  userId           String?      @unique
+  user             User?        @relation(fields: [userId], references: [id])
+  employeeCode     String       @unique
+  firstName        String
+  lastName         String
+  departmentId     String
+  department       Department   @relation(fields: [departmentId], references: [id])
+  position         String
+  baseHourlyRate   Decimal      @default(0)
+  startDate        DateTime
+  averageHoursMonth Decimal     @default(0)
+  averageHoursDay  Decimal      @default(0)
+  salesTarget      Decimal      @default(0)
+  phone            String?
+  email            String?
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  attendanceRecords AttendanceRecord[]
+  monthlyPayrolls   MonthlyPayroll[]
+  taskReports       TaskReport[]
+  monthlySummaries  MonthlyTaskSummary[]
+  monthlySales      MonthlySales[]
+  payslips          Payslip[]
+  promotions        Promotion[]
+  @@map("employees")
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  name            String
+  category        String?
+  purchasePrice   Decimal  @default(0)
+  salePrice       Decimal  @default(0)
+  reorderLevel    Int      @default(0)
+  currentStock    Int      @default(0)
+  unit            String   @default("piece")
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  @@map("products")
+}
+
+model AttendanceDevice {
+  id         String     @id @default(uuid())
+  name       String
+  deviceType DeviceType
+  ipAddress  String?
+  port       Int?
+  model      String?
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  records    AttendanceRecord[]
+  @@map("attendance_devices")
+}
+
+model AttendanceRecord {
+  id            String           @id @default(uuid())
+  employeeId    String
+  employee      Employee         @relation(fields: [employeeId], references: [id])
+  deviceId      String?
+  device        AttendanceDevice? @relation(fields: [deviceId], references: [id])
+  date          DateTime
+  checkIn       DateTime?
+  checkOut      DateTime?
+  status        AttendanceStatus @default(present)
+  lateMinutes   Int              @default(0)
+  verifyMode    String?
+  importBatchId String?
+  importBatch   ImportBatch?     @relation(fields: [importBatchId], references: [id])
+  nightShift    Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+  @@map("attendance_records")
+}
+
+model ImportBatch {
+  id              String       @id @default(uuid())
+  importType      ImportType
+  fileName        String?
+  deviceType      String?
+  totalRecords    Int          @default(0)
+  importedRecords Int          @default(0)
+  failedRecords   Int          @default(0)
+  status          ImportStatus @default(processing)
+  importedById    String
+  importedBy      User         @relation(fields: [importedById], references: [id])
+  errorLog        Json?
+  createdAt       DateTime     @default(now())
+  records         AttendanceRecord[]
+  @@map("import_batches")
+}
+
+model MonthlyPayroll {
+  id                   String        @id @default(uuid())
+  employeeId           String
+  employee             Employee      @relation(fields: [employeeId], references: [id])
+  month                Int
+  year                 Int
+  actualHours          Decimal       @default(0)
+  overtimeHours        Decimal       @default(0)
+  absentDays           Int           @default(0)
+  lateDays             Int           @default(0)
+  commitmentScore      Int           @default(5)
+  conductScore         Int           @default(5)
+  salesTargetReached   Boolean       @default(false)
+  notes                String?
+  status               PayrollStatus @default(draft)
+  createdById          String?
+  createdBy            User?         @relation("createdPayrolls", fields: [createdById], references: [id])
+  approvedById         String?
+  approvedBy           User?         @relation("approvedPayrolls", fields: [approvedById], references: [id])
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  additionalTasks       AdditionalTask[]
+  payslip               Payslip?
+  @@unique([employeeId, month, year])
+  @@map("monthly_payrolls")
+}
+
+model AdditionalTask {
+  id          String   @id @default(uuid())
+  payrollId   String
+  payroll     MonthlyPayroll @relation(fields: [payrollId], references: [id])
+  taskName    String
+  description String?
+  hours       Decimal  @default(0)
+  amount      Decimal  @default(0)
+  taskDate    DateTime?
+  status      String   @default("completed")
+  createdAt   DateTime @default(now())
+  @@map("additional_tasks")
+}
+
+model TaskReport {
+  id                String           @id @default(uuid())
+  employeeId        String
+  employee          Employee         @relation(fields: [employeeId], references: [id])
+  reportMonth       Int
+  reportYear        Int
+  taskName          String
+  taskDescription   String?
+  taskCategory      String?
+  plannedHours      Decimal          @default(0)
+  actualHours       Decimal          @default(0)
+  completionPercent Int              @default(100)
+  qualityScore      Int              @default(8)
+  isException       Boolean          @default(false)
+  employeeNotes     String?
+  managerNotes      String?
+  status            TaskReportStatus @default(draft)
+  reviewedById      String?
+  reviewedBy        User?            @relation(fields: [reviewedById], references: [id])
+  reviewedAt        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  @@map("task_reports")
+}
+
+model MonthlySales {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  month         Int
+  year          Int
+  totalSales    Decimal  @default(0)
+  employeeSales Decimal  @default(0)
+  salesRatio    Decimal  @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@unique([employeeId, month, year])
+  @@map("monthly_sales")
+}
+
+model MonthlyTaskSummary {
+  id                String            @id @default(uuid())
+  employeeId        String
+  employee          Employee          @relation(fields: [employeeId], references: [id])
+  month             Int
+  year              Int
+  totalTasks        Int               @default(0)
+  completedTasks    Int               @default(0)
+  totalPlannedHours Decimal           @default(0)
+  totalActualHours  Decimal           @default(0)
+  averageCompletion Decimal           @default(0)
+  averageQuality    Decimal           @default(0)
+  performanceScore  Decimal           @default(0)
+  performanceFactor Decimal           @default(1.00)
+  status            TaskSummaryStatus @default(draft)
+  finalizedById     String?
+  finalizedBy       User?             @relation(fields: [finalizedById], references: [id])
+  finalizedAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  @@unique([employeeId, month, year])
+  @@map("monthly_task_summaries")
+}
+
+model Payslip {
+  id                        String   @id @default(uuid())
+  employeeId                String
+  employee                  Employee @relation(fields: [employeeId], references: [id])
+  payrollId                 String   @unique
+  payroll                   MonthlyPayroll @relation(fields: [payrollId], references: [id])
+  month                     Int
+  year                      Int
+  actualHours               Decimal  @default(0)
+  baseHourlyRate            Decimal  @default(0)
+  basePay                   Decimal  @default(0)
+  experienceFactor          Decimal  @default(1.00)
+  experienceAmount          Decimal  @default(0)
+  salesFactor               Decimal  @default(1.00)
+  salesAmount               Decimal  @default(0)
+  conductFactor             Decimal  @default(1.00)
+  conductAmount             Decimal  @default(0)
+  taskPerformanceFactor     Decimal  @default(1.00)
+  taskPerformanceAmount     Decimal  @default(0)
+  commitmentScore           Int      @default(5)
+  commitmentDeductionRate   Decimal  @default(0)
+  commitmentDeductionAmount Decimal  @default(0)
+  overtimeHours             Decimal  @default(0)
+  overtimeAmount            Decimal  @default(0)
+  additionalTasksTotal      Decimal  @default(0)
+  grossPay                  Decimal  @default(0)
+  taxAmount                 Decimal  @default(0)
+  socialInsuranceAmount     Decimal  @default(0)
+  otherDeductions           Decimal  @default(0)
+  totalDeductions           Decimal  @default(0)
+  netPay                    Decimal  @default(0)
+  status                    String   @default("draft")
+  paidDate                  DateTime?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  @@unique([employeeId, month, year])
+  @@map("payslips")
+}
+
+model Promotion {
+  id               String   @id @default(uuid())
+  employeeId       String
+  employee         Employee @relation(fields: [employeeId], references: [id])
+  previousPosition String?
+  newPosition      String
+  previousRate     Decimal?
+  newRate          Decimal
+  promotionDate    DateTime
+  reason           String?
+  approvedById     String
+  approvedBy       User     @relation(fields: [approvedById], references: [id])
+  createdAt        DateTime @default(now())
+  @@map("promotions")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String?
+  type      String   @default("info")
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  @@map("notifications")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String
+  entityType  String
+  entityId    String?
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  @@map("audit_logs")
+}
+
+model Backup {
+  id         String   @id @default(uuid())
+  filename   String
+  fileSize   Int      @default(0)
+  backupType String   @default("manual")
+  status     String   @default("completed")
+  createdAt  DateTime @default(now())
+  @@map("backups")
+}
+
+model Setting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  category    String   @default("general")
+  updatedAt   DateTime @updatedAt
+  @@map("settings")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  category    String   @default("general")
+  createdAt   DateTime @default(now())
+  rolePermissions RolePermission[]
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id @default(uuid())
+  role         UserRole
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  @@unique([role, permissionId])
+  @@map("role_permissions")
+}
+
+model ReportTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  dataSource  String
+  fields      Json
+  filters     Json?
+  sortBy      Json?
+  groupBy     String?
+  showTotals  Boolean  @default(false)
+  chartType   String?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  isShared    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("report_templates")
+}

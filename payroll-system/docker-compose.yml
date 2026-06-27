@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: payroll-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-https://baitak.mtapp.ly}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - payroll-net
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: payroll-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123}
+      POSTGRES_DB: ${POSTGRES_DB:-payroll_system}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - payroll-net
+
+networks:
+  payroll-net:
+    driver: bridge
+
+volumes:
+  pgdata:
